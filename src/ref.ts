@@ -83,35 +83,65 @@ export const updateRefTos = (entityUid, flushArgs: IFlushArgs) => {
         // check the references for each referenced item. References are keyed by refToUid in the refTo object.
         // Each refToUid value is an array containing a list of paths where the reference is located inside this
         // entity
-        for (let refToUid in refTo) {
-            if (refTo.hasOwnProperty(refToUid)) {
-                // get the list of paths
-                let paths = refTo[refToUid];
-                // update the paths array to contain only the remaining references
-                let updatedPaths = paths.map(path => {
-                    let reference = opath.get(item.entity, path);
-                    if (reference) {
-                        let targetUid = reference[config.uidName];
-                        if (targetUid) {
-                            // *** keep double equality here to convert strings to numbers
-                            let found = targetUid == refToUid;
-                            if (found === true) {
-                                return path;
-                            }
+        refTo.forEach((refToUid, val) => {
+            console.log("ITERATING", refToUid);
+            // get the list of paths
+            let paths = refTo[refToUid];
+            // update the paths array to contain only the remaining references
+            let updatedPaths = paths.map(path => {
+                let reference = opath.get(item.entity, path);
+                if (reference) {
+                    let targetUid = reference[config.uidName];
+                    if (targetUid) {
+                        // *** keep double equality here to convert strings to numbers
+                        let found = targetUid == refToUid;
+                        if (found === true) {
+                            return path;
                         }
                     }
-                    removeRefFrom_Value(entityUid, refToUid, flushArgs);
-                }).filter(item => {
-                    return item !== null && item !== undefined;
-                });
-
-                // update or remove the paths
-                if (updatedPaths.length > 0) {
-                    item.ref_to[refToUid] = updatedPaths;
-                } else {
-                    item.ref_to[refToUid] = undefined;
-                    delete item.ref_to[refToUid];
                 }
+                removeRefFrom_Value(entityUid, refToUid, flushArgs);
+            }).filter(item => {
+                return item !== null && item !== undefined;
+            });
+
+            // update or remove the paths
+            if (updatedPaths.length > 0) {
+                item.ref_to[refToUid] = updatedPaths;
+            } else {
+                item.ref_to[refToUid] = undefined;
+                delete item.ref_to[refToUid];
+            }
+        })
+        for (let refToUid in refTo) {
+            if (refTo.hasOwnProperty(refToUid)) {
+                // // get the list of paths
+                // let paths = refTo[refToUid];
+                // // update the paths array to contain only the remaining references
+                // let updatedPaths = paths.map(path => {
+                //     let reference = opath.get(item.entity, path);
+                //     if (reference) {
+                //         let targetUid = reference[config.uidName];
+                //         if (targetUid) {
+                //             // *** keep double equality here to convert strings to numbers
+                //             let found = targetUid == refToUid;
+                //             if (found === true) {
+                //                 return path;
+                //             }
+                //         }
+                //     }
+                //     removeRefFrom_Value(entityUid, refToUid, flushArgs);
+                // }).filter(item => {
+                //     return item !== null && item !== undefined;
+                // });
+
+                // // update or remove the paths
+                // if (updatedPaths.length > 0) {
+                //     item.ref_to[refToUid] = updatedPaths;
+                // } else {
+                //     item.ref_to[refToUid] = undefined;
+                //     delete item.ref_to[refToUid];
+                // }
             }
         }
     }

@@ -26,6 +26,7 @@ export const buildFlushMap = (flushArgs: IFlushArgs) => {
         "\n  entity", flushArgs.entity,
         "\n  parentUid:", flushArgs.parentUid)
     console.log("=====================================")
+
     if (hasUid(flushArgs.entity)) {
         cacheUidEntityRefs(flushArgs);
     } else {
@@ -92,8 +93,6 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
 
             let refEntity = parentEntity[prop];
 
-
-
             if (isObject(refEntity) || isArray(refEntity)) {
                 flushArgs.entity = refEntity;
                 if (parentEntity[config.uidName]) {
@@ -105,8 +104,6 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
                 if (!flushArgs.refPath) {
                     flushArgs.refPath = prop;
                 }
-            } else {
-                flushArgs.entity = undefined;
             }
 
             console.log("CACHE ENTITY REFS",
@@ -286,7 +283,7 @@ export const getItemFlushOrCached = (uid: string, flushArgs: IFlushArgs) => {
     if (!item) {
         item = getCachedItem(uid, flushArgs.instance);
     }
-    if (Object.isFrozen(item)) {
+    if (item && Object.isFrozen(item)) {
         item = item.clone();
     }
     return item;

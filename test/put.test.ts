@@ -87,6 +87,13 @@ describe("put-get", function () {
         expect(Object.isFrozen(result.items)).to.be.true;
     });
 
+    it.only("puts item with array of arrays", () => {
+        let item = { uid: 1, items: [[{ uid: 1 }, { uid: 2 }], ["three"]] };
+        one.put(item);
+        one.print()
+        fail
+    })
+
     it("freezes entity deeply", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2, item: item1 };
@@ -892,7 +899,7 @@ describe("put-get", function () {
         expect(one.refFrom(1)["2"][0]).to.equal("items.0");
     });
 
-    it.only("builds the prop chain for inner nested array items", function () {
+    it("builds the prop chain for inner nested array items", function () {
         let item1 = { uid: 1 };
         let item3 = { uid: 3, item: item1 };
         let item2 = { uid: 2, items: [item1, item3] };
