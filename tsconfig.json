@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "rootDir": "./",
+        "outDir": "./war",
+        "sourceMap": false,
+        "inlineSourceMap": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "es5",
+        "noImplicitAny": false,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "types": [
+            "node",
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "test"
+    ],
+    "include": [
+        "src/**/*"
+    ],
+    "files": [
+        // need this for promise definitions etc.
+        // "node_modules/typescript/lib/lib.es6.d.ts"
+    ],
+    "buildOnSave": true,
+    "compileOnSave": false
+}
