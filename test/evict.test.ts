@@ -8,7 +8,7 @@ import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
 
-describe.skip("evict", function () {
+describe("evict", function () {
 
     "use strict";
 
@@ -153,15 +153,17 @@ describe.skip("evict", function () {
         expect(one.refTo(3)["1"]).to.be.undefined;
     });
 
-    it("removes entity array referenced when deleting array from parent", function () {
+    it("removes last entity array referenced when deleting array from parent", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2, children: [item1] };
         one.put(item2);
 
         let editable = one.getEdit(2);
         editable.children = undefined;
+        console.log(editable)
         one.put(editable);
 
+        one.print()
         expect(one.get(1)).to.be.undefined;
     });
 
@@ -179,15 +181,42 @@ describe.skip("evict", function () {
         one.put(editable);
 
         editable = one.getEdit(2);
-        editable.items = undefined;
+        editable.items = [];
         one.put(editable);
 
+        one.print();
         expect(one.refTo(2)["1"]).to.be.undefined;
         expect(one.get(1)).to.be.undefined;
     });
 
+    it('puts complete arrays', () => {
+        let item1 = { uid: 1 };
+        let item3 = { uid: 3, item: item1 };
+        let item4 = { uid: 4 };
+        let item2 = {
+            uid: 2,
+            items: [item1, item3, item4]
+        };
+        one.put(item2);
+        one.print();
+        expect(one.refTo(2).size()).to.equal(3);
+        expect(one.refTo(2).paths[1][0]).to.equal('items.0')
+        expect(one.refTo(2).paths[3][0]).to.equal('items.1')
+        expect(one.refTo(2).paths[4][0]).to.equal('items.2')
+
+        expect(one.refFrom(3).size()).to.equal(1);
+        expect(one.refFrom(3).paths[2][0]).to.equal('items.1')
+        expect(one.refTo(3).size()).to.equal(1);
+        expect(one.refTo(3).paths[1][0]).to.equal('item')
+
+        expect(one.refTo(4).size()).to.equal(0)
+        expect(one.refFrom(4).size()).to.equal(1)
+        expect(one.refFrom(4).paths[2][0]).to.equal('items.2')
+    })
+
     it("removes entity if is last reference "
         + "when putting entity with removed reference", function () {
+
             let item1 = { uid: 1 };
             let item3 = {
                 uid: 3,
@@ -202,23 +231,28 @@ describe.skip("evict", function () {
             };
             one.put(item2); // 0
 
+            one.print();
+
             expect(one.size()).to.equal(4);
 
-            let editable = one.getEdit(2);
-            delete editable.item;
-            editable.items = [];
+            let editable2 = one.getEdit(2);
+            editable2.item = undefined;
+            editable2.items = [];
+            console.log(editable2)
+            one.put(editable2); // 1
 
-            one.put(editable); // 1
+            one.print()
 
             let result = one.get(1);
             expect(result).to.not.be.undefined;
 
-            editable = one.getEdit(3);
-            delete editable.item;
-            one.put(editable);
+            let editable3 = one.getEdit(3);
+            delete editable3.item;
+            one.put(editable3);
 
             result = one.get(1);
             expect(one.get(3)).to.not.be.undefined;
+
             expect(result).to.be.undefined;
         });
 
@@ -356,18 +390,18 @@ describe.skip("evict", function () {
         expect(one.get(2).item.item).to.be.undefined;
     })
 
-    it.only("evicts item with array of arrays repeating", () => {
+    it("evicts item with array of arrays repeating", () => {
         let item = { uid: 'top', items: [[{ uid: 1 }, { uid: 2 }], [{ uid: 1 }]] };
         one.put(item);
 
         one.evict(1);
 
+        expect(one.get(1)).to.be.undefined;
         one.print();
 
-        expect(one.refFrom(1).get("top")[0]).to.equal("items.0.0");
-        expect(one.refFrom(1).get("top")[1]).to.equal("items.1.0");
-        expect(one.refFrom(1).size()).to.equal(1);
-        expect(one.refTo(1).size()).to.equal(0);
+        expect(one.refFrom('top').size()).to.equal(0);
+        expect(one.refTo('top').paths[2][0]).to.equal('items.0.1')
+        expect(one.refTo('top').size()).to.equal(1)
 
         expect(one.refFrom(2).get("top")[0]).to.equal("items.0.1");
         expect(one.refFrom(2).size()).to.equal(1);

@@ -2,10 +2,11 @@ import { ICacheInstance } from './CacheInstance';
 import CacheItem from './CacheItem';
 import CacheMap from './CacheMap';
 import { clearNext } from './evict';
-import { preFlush, buildFlushMap, updatePointers } from './flush';
 import { ICacheStats, IFlushArgs } from './interfaces';
 import { getCallStats } from './locate';
 import { isArray, isObject } from './util';
+import { updatePointers } from './ref';
+import { buildFlushMap, preFlush } from './flush';
 
 /**
  * Puts an item on the cache and updates all its references to match any present in the item's entity tree
@@ -32,6 +33,7 @@ export const putItem = (entity: {} | Array<{}>, instance: ICacheInstance) => {
         }
 
         buildFlushMap(flushArgs);
+
         updatePointers(flushArgs);
 
         if (flushArgs.flushMap.size() > 0 && flushMap['__UPDATED__'] === true) {

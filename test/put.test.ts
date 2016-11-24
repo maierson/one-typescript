@@ -977,6 +977,33 @@ describe("put-get", function () {
         expect(result.val).to.equal('value');
     });
 
+    it('removes items from entity when putting over cached version', () => {
+        let item = { uid: 1 };
+        let item2 = { uid: 2, item: item };
+
+        one.put(item2);
+        let editable = one.getEdit(2);
+        editable.item = undefined;
+        console.log(editable)
+        one.put(editable);
+        expect(one.get(1)).to.be.undefined;
+    })
+
+    it('removes items from entity array when putting over cached version', () => {
+        let item = { uid: 1 };
+        let item3 = { uid: 3 };
+        let item2 = { uid: 2, items: [item3, item] };
+
+        one.put([item2, item3]);
+        let editable = one.getEdit(2);
+        editable.items = [item3];
+        console.log(editable)
+        one.put(editable);
+        expect(one.get(1)).to.be.undefined;
+        console.log(one.get(2))
+        console.log(one.get(1))
+    })
+
     //     /* Not sure this should be the lib's responsiblity - it involves scanning ALL arrays
     //     in ALL entities in the cache */
     //     //it("evicts the uid property if existing inside an array", function(){

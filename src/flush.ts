@@ -77,20 +77,16 @@ const ensureOnFlushMap = (flushArgs: IFlushArgs) => {
  * that optionally has a uid property. Loops through each property
  * to find the appropriate ones.
  *
- * @param parentEntity
- * @param flushMap
- * @param parentUid
- * @param evictMap
- * @param refPath the path of the referenced uid entity inside its parent
+ * @param flushArgs
  */
 const cacheEntityRefs = (flushArgs: IFlushArgs) => {
-    console.log("CACHE ENTITY REFS",
-        "\n  entity: ", flushArgs.entity)
+    // console.log("CACHE ENTITY REFS",
+    //     "\n  entity: ", flushArgs.entity)
 
     let parentEntity = flushArgs.entity;
 
     for (let prop in parentEntity) {
-        console.log("PROP", prop, " parentEntity:", parentEntity)
+        // console.log("PROP", prop, " parentEntity:", parentEntity)
         if (parentEntity.hasOwnProperty(prop)) {
 
             let refEntity = parentEntity[prop];
@@ -136,9 +132,16 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
 const cacheArrRefs = (flushArgs: IFlushArgs) => {
     let entity = flushArgs.entity;
 
+    console.log("START ARRAY //////////////////")
+
     // keep track of where the array path starts
     // to return to it with every array item iterated below
     let arrayPath = flushArgs.refPath;
+    let arrayUid;
+    if (!arrayUid) {
+        arrayUid = flushArgs.parentUid;
+    }
+
     (entity as Array<any>).forEach((next, index) => {
 
         // always have as parent the closest uid entity        
@@ -146,6 +149,7 @@ const cacheArrRefs = (flushArgs: IFlushArgs) => {
             flushArgs.parentUid = entity[config.uidName];
         }
         flushArgs.entity = next;
+        flushArgs.parentUid = arrayUid;
 
         if (flushArgs.refPath || arrayPath) {
             flushArgs.refPath = arrayPath + "." + index;
@@ -154,6 +158,8 @@ const cacheArrRefs = (flushArgs: IFlushArgs) => {
         console.log("CACHE ARR REFS",
             "\n  entity:", entity,
             "\n  refPath:", flushArgs.refPath,
+            "\n  arrayPath:", arrayPath,
+            "\n  arrayEntity:", arrayUid,
             "\n  parentUid:", flushArgs.parentUid,
             "\n  next:", next,
             "\n  isArray:", isArray(next),
@@ -165,6 +171,8 @@ const cacheArrRefs = (flushArgs: IFlushArgs) => {
             cacheObjRefs(flushArgs);
         }
     });
+
+    console.log("END ARRAY //////////////////")
     Object.freeze(entity);
 };
 
@@ -209,10 +217,10 @@ const cacheUidObjRefs = (flushArgs: IFlushArgs) => {
     }
     //flushArgs.parentUid = String(flushArgs.entity[config.uidName]);
 
-    console.log("CACHE UID OBJ REFS",
-        "\n  entity:", flushArgs.entity,
-        "\n  parentUid:", flushArgs.parentUid,
-        "\n  refPath:", flushArgs.refPath)
+    // console.log("CACHE UID OBJ REFS",
+    //     "\n  entity:", flushArgs.entity,
+    //     "\n  parentUid:", flushArgs.parentUid,
+    //     "\n  refPath:", flushArgs.refPath)
 
     // flushArgs.refPath = "";
     buildFlushMap(flushArgs);
@@ -221,49 +229,6 @@ const cacheUidObjRefs = (flushArgs: IFlushArgs) => {
 const isDirty = (flushArgs: IFlushArgs): boolean => {
     let cachedItem = getCachedItem(flushArgs.entity[config.uidName], flushArgs.instance);
     return !cachedItem || cachedItem.entity !== flushArgs.entity;
-}
-
-/**
- *
- * @param flushMap
- */
-export const updatePointers = (flushArgs: IFlushArgs) => {
-    // at this point all items are added into the flush map - update their pointers if applicable
-    flushArgs.flushMap.forEach((key, item: CacheItem) => {
-        // do not modify flush map on its own iteration but ok to pass along for reference
-        let refsFrom = item.mapFrom;
-        item.mapFrom.forEach((parentUid, paths) => {
-            let parentItem = flushArgs.flushMap.get(parentUid);
-            if (!parentItem) {
-                parentItem = getCachedItem(parentUid, flushArgs.instance);
-            }
-
-            /* only update if dirty - no need to iterate all paths - just check the first one
-            - if dirty then the parent entity needs to be cloned and updated anyways so pass in
-            the ref entity when cloning - it will be updated wherever it is encountered during cloning */
-            if (parentItem && paths.length > 0) {
-                let firstPath = paths[0];
-                let targetRef = opath.get(parentItem.entity, firstPath);
-                // check for dirty
-                let dirty = (targetRef && targetRef !== item.entity);
-
-                if (dirty === true) {
-                    let args: IFlushArgs = {
-                        entity: parentItem.entity,
-                        flushMap: flushArgs.flushMap,
-                        instance: flushArgs.instance
-                    }
-                    parentItem = ensureItem(args);
-
-                    // TODO figure out a way to not clone the entity every time particularly if it is
-                    // already present on the flush map
-
-                    // the entity is still frozen here - clone it to update and freeze it deeply
-                    parentItem.entity = deepClone(parentItem.entity, item.entity, true);
-                }
-            }
-        })
-    })
 }
 
 /**

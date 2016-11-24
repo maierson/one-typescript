@@ -5,9 +5,10 @@ import { getCacheCurrentStack, getCachedItem, getEditItem } from './get';
 import CacheMap from './CacheMap';
 import CacheItem from './CacheItem';
 import * as opath from './path';
-import { getItemFlushOrCached, buildFlushMap, updatePointers, flush } from './flush';
+import { getItemFlushOrCached, buildFlushMap, flush } from './flush';
 import { IFlushArgs } from './interfaces';
 import { getCallStats } from './locate';
+import { updatePointers, updateRefFroms } from './ref';
 declare let require: any;
 const objectAssign = require('object-assign');
 
@@ -70,9 +71,7 @@ export const evictItem = (obj, instance: ICacheInstance) => {
         clearParentRefTos(uidArray, parentsChanged, flushArgs);
     });
 
-    console.log(parentsChanged);
-
-    putParentsChanged(parentsChanged, flushMap, instance);
+    putParentsChanged(parentsChanged, flushMap, evictMap, instance);
 
     console.log(parentsChanged);
 
@@ -91,15 +90,20 @@ export const evictItem = (obj, instance: ICacheInstance) => {
     return getCallStats(true, instance);
 };
 
-const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheItem>, instance: ICacheInstance) => {
+const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheItem>, evictMap: CacheMap<CacheItem>, instance: ICacheInstance) => {
     if (parentsChanged && parentsChanged.length > 0 && cacheSize(instance) > 0) {
         let flushArgs: IFlushArgs = {
-            //entity: parentsChanged,
             flushMap: flushMap,
+            evictMap: evictMap,
             instance: instance
         }
         buildFlushMap(flushArgs);
-        updatePointers(flushArgs);
+        // refTos have been updated already only handle refFroms
+        flushArgs.flushMap.forEach((key, item: CacheItem) => {
+            // do not modify flush map on its own iteration but ok to pass along for reference
+            let refsFrom = item.mapFrom;
+            updateRefFroms(item, flushArgs);
+        })
     }
 };
 
@@ -126,23 +130,6 @@ const clearTargetRefFroms = (flushArgs: IFlushArgs) => {
                 }
             }
         })
-
-        // let ref_to = item.mapTo;
-        // for (let refToUid in ref_to) {
-        //     if (ref_to.hasOwnProperty(refToUid)) {
-        //         let refItem: CacheItem = getItemFlushOrCached(refToUid, flushArgs);
-        //         if (refItem) {
-        //             clearRefFrom(refItem, flushArgs.entityUid);
-        //             if (refItem.mapFrom.size() === 0) {
-        //                 flushArgs.entityUid = refToUid;
-        //                 clearTargetRefFroms(flushArgs);
-        //                 flushArgs.evictMap.set(refToUid, refItem);
-        //             } else {
-        //                 flushArgs.flushMap.set(refToUid, refItem);
-        //             }
-        //         }
-        //     }
-        // }
     }
 };
 
@@ -153,18 +140,12 @@ const clearTargetRefFroms = (flushArgs: IFlushArgs) => {
    * @param parentUid
    */
 const clearRefFrom = (refItem: CacheItem, parentUid) => {
-    let refsArray = refItem.mapFrom[parentUid];
+    let refsArray = refItem.mapFrom.get(parentUid);
     if (!refsArray) {
         return;
     }
     refItem.mapFrom = refItem.mapFrom.clone();
-    // cloneRef(refItem, REF_FROM);
     refItem.mapFrom.delete(parentUid);
-    // refItem.ref_from[parentUid] = undefined;
-    // delete refItem.ref_from[parentUid]; // where it works
-    // if (refItem.ref_from.size() > 0) {
-    //     refItem.ref_from.length -= 1;
-    // }
 };
 
 // /**
@@ -189,22 +170,18 @@ const clearParentRefTos = (uidArray, parentsChanged, flushArgs: IFlushArgs) => {
     let item: CacheItem = getItemFlushOrCached(flushArgs.entityUid, flushArgs);
 
     if (item) {
-        let refFrom = item.mapFrom;
-        console.log(refFrom)
-        for (let parentUid in refFrom) {
-            if (refFrom.hasOwnProperty(parentUid)) {
-                let parentItem = getItemFlushOrCached(parentUid, flushArgs);
-                if (parentItem) {
-                    let success = clearRefTo(parentItem, flushArgs.entityUid, flushArgs.instance);
-                    if (success === true) {
-                        flushArgs.flushMap.set(parentUid, parentItem);
-                        if (uidArray.indexOf(parentUid) < 0) {
-                            parentsChanged.push(parentItem);
-                        }
+        item.mapFrom.forEach((parentUid, paths) => {
+            let parentItem = getItemFlushOrCached(parentUid, flushArgs);
+            if (parentItem) {
+                let success = clearRefTo(parentItem, flushArgs.entityUid, flushArgs.instance);
+                if (success === true) {
+                    flushArgs.flushMap.set(parentUid, parentItem);
+                    if (uidArray.indexOf(parentUid) < 0) {
+                        parentsChanged.push(parentItem);
                     }
                 }
             }
-        }
+        })
     }
 };
 
@@ -221,7 +198,7 @@ const clearRefTo = (parentItem: CacheItem, refUid, instance: ICacheInstance) => 
         parent = getEditItem(parent[config.uidName], instance);
         parentItem.entity = parent;
     }
-    let refPaths = parentItem.mapTo[refUid];
+    let refPaths = parentItem.mapTo.get(refUid);
     refPaths.forEach(path => {
         opath.del(parent, path);
     });
@@ -233,13 +210,6 @@ const clearRefTo = (parentItem: CacheItem, refUid, instance: ICacheInstance) => 
     // then clear the metadata
     parentItem.mapTo = parentItem.mapTo.clone();
     parentItem.mapTo.delete(refUid);
-    // cloneRef(parentItem, REF_TO);
-    // parentItem.ref_to[refUid] = undefined;
-    // delete parentItem.ref_to[refUid]; // where it works
-
-    // if (parentItem.ref_to.length > 0) {
-    //     parentItem.ref_to.length -= 1;
-    // }
     return true;
 };
 
