@@ -1,3 +1,4 @@
+import { clearNext } from '../src/evict';
 import { config, instances, setTesting } from '../src/cache';
 import { expect } from 'chai'
 import * as sinon from 'sinon'
@@ -10,6 +11,7 @@ import CacheMap from '../src/CacheMap';
 import { ICacheInstance } from '../src/CacheInstance';
 import CacheInstance from '../src/CacheInstance';
 import { CacheNode, ICacheNode } from '../src/CacheNode';
+import { node } from '../src/locate';
 
 describe("evict", function () {
 
@@ -421,9 +423,10 @@ describe("evict", function () {
             let node: ICacheNode = new CacheNode(i);
             instance.addNode(node);
         }
-
-
-
+        node(instance, 1);
+        clearNext(instance);
+        expect(instance.size()).to.equal(2)
+        expect(instance.length()).to.equal(2)
     })
 });
 

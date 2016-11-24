@@ -135,11 +135,11 @@ export function deepClone(obj, uidReference?, freeze = true) {
 
     // shallow copy first
     let result = objectAssign({}, obj);
-    for (let propName in result) {
-        if (result.hasOwnProperty(propName)) {
-            let value = result[propName];
+    for (let propName in obj) {
+       // if (obj.hasOwnProperty(propName)) {
+            let value = obj[propName];
             if (value) {
-                if (isArray(value)) {
+               if (isArray(value)) {
                     result[propName] = deepCloneArray(value, uidReference, freeze);
                 } else if (isDate(value)) {
                     let date = new Date(value.getTime());
@@ -163,9 +163,13 @@ export function deepClone(obj, uidReference?, freeze = true) {
                     } else {
                         result[propName] = deepClone(value, uidReference, freeze);
                     }
+               } else {
+                   // functions and primitives
+                    console.log(value)
+                    result[propName] = value;
                 }
             }
-        }
+       // }
     }
     if (freeze === true && !Object.isFrozen(result)) {
         Object.freeze(result);

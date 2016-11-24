@@ -1004,6 +1004,43 @@ describe("put-get", function () {
         console.log(one.get(1))
     })
 
+    it('puts first come first served', () => {
+        let item1 = { uid: 1, val: "item1" }
+        let item2 = { uid: 1, val: "item2" }
+        one.put([item1, item2]);
+        expect(one.size()).to.equal(1);
+        expect(one.length()).to.equal(1);
+        expect(one.get(1).val).to.equal('item1')
+    })
+
+    it('puts first come first served nested', () => {
+        let item1 = { uid: 1, val: "item1" }
+        let item2 = { uid: 1, val: "item2" }
+        let item3: any = {
+            uid: 3,
+            otherItem: item2,
+            item: item1,
+        }
+        one.put(item3);
+        expect(one.size()).to.equal(2);
+        expect(one.length()).to.equal(1);
+        expect(one.get(1).val).to.equal('item2')
+    })
+
+    it('puts first come first served in array', () => {
+        let item1 = { uid: 1, val: "item1" }
+        let item2 = { uid: 1, val: "item2" }
+        let item3: any = {
+            uid: 3,
+            otherItem: [item2],
+            item: item1,
+        }
+        one.put(item3);
+        expect(one.size()).to.equal(2);
+        expect(one.length()).to.equal(1);
+        expect(one.get(1).val).to.equal('item2')
+    })
+
     //     /* Not sure this should be the lib's responsiblity - it involves scanning ALL arrays
     //     in ALL entities in the cache */
     //     //it("evicts the uid property if existing inside an array", function(){

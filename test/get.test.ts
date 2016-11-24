@@ -219,6 +219,57 @@ describe("get", function () {
         expect(result[0].uid).to.equal(1);
         expect(result[1].uid).to.equal(2);
     });
+
+    it('gets with functions', () => {
+        let item = {
+            uid: 1,
+            do: () => { return 3 }
+        }
+        one.put(item);
+        expect(typeof one.get(1).do === 'function').to.be.true;
+        expect(one.get(1).do()).to.equal(3);
+    })
+
+    it('gets edit with functions', () => {
+        let item = {
+            uid: 1,
+            func: () => { return 3 }
+        }
+        item["dofunc"] = function () {
+            return 5;
+        }
+        expect(typeof item["dofunc"] === 'function').to.be.true;
+        one.put(item);
+
+        let result = one.getEdit(1);
+        expect(result === item).to.be.false;
+        expect(typeof result.func === 'function').to.be.true;
+        expect(result.func()).to.equal(3);
+
+        expect(typeof result['dofunc'] === 'function').to.be.true;
+        expect(result['dofunc']()).to.equal(5);
+    })
+
+    it('gets edit with functions with new', () => {
+        function Test() {
+            let uid;
+        }
+        Test.prototype.uid = 1;
+        Test.prototype.func = function () {
+            return this.uid;
+        }
+
+        let test1 = new Test();
+        expect(test1.uid).to.equal(1)
+        expect(test1.func()).to.equal(1);
+
+        one.put(test1);
+        let result = one.getEdit(1);
+        expect(test1 === result).to.be.false;
+        expect(typeof result.func === 'function').to.be.true;
+        expect(result.uid).to.equal(1);
+        expect(result.func()).to.equal(1);
+    })
 });
 
 

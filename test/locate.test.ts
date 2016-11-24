@@ -44,7 +44,7 @@ describe("locate", function () {
         expect(result.name).to.equal('test');
     })
 
-    it('returns true stats on valid nodeId ', () => {
+    it('returns true stats on valid nodeId - middle of binary array ', () => {
         let instance: ICacheInstance = new CacheInstance("test");
         for (let i = 0; i < 3; i++) {
             let node: ICacheNode = new CacheNode(i);
@@ -54,6 +54,19 @@ describe("locate", function () {
         expect(result.success).to.be.true;
         expect(result.nodeId).to.equal(1);
         expect(result.length).to.equal(3);
+        expect(result.name).to.equal('test');
+    })
+
+    it('returns true stats on valid nodeId - left of binary array ', () => {
+        let instance: ICacheInstance = new CacheInstance("test");
+        for (let i = 0; i < 5; i++) {
+            let node: ICacheNode = new CacheNode(i);
+            instance.addNode(node);
+        }
+        let result: ICacheStats = node(instance, 1) as ICacheStats;
+        expect(result.success).to.be.true;
+        expect(result.nodeId).to.equal(1);
+        expect(result.length).to.equal(5);
         expect(result.name).to.equal('test');
     })
 });
