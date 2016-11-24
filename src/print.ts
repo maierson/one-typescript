@@ -29,14 +29,11 @@ export const printCache = (instance: ICacheInstance) => {
 
     index = 0;
 
-    let printFinal = "\n------ One -------"
+    return "\n------ One -------"
         + "\nSTACK:\n" + result
         + "\n\nCONFIG:" + JSON.stringify(config, null, 2)
         + "\n\nREPO SIZE:" + instance.repo.length
         + "\n===================\n";
-    console.log(printFinal);
-    // fail
-    return printFinal;
 };
 
 const stringifyMap = (map: CacheMap<CacheItem>) => {
@@ -47,5 +44,5 @@ const stringifyMap = (map: CacheMap<CacheItem>) => {
         result += itemResult + ",\n";
     })
 
-    return result.length > 2 ? result.substring(0, result.length - 2) : result;
+    return result;
 }

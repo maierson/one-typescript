@@ -84,26 +84,6 @@ export function isEmpty(value) {
     return false;
 }
 
-
-// /* hoisted for reset - keep as function def*/
-// /**
-//   * Creates a new thread. Idempotent: if thread exists returns existing thread.
-//   *
-//   * @returns {*} the newly created thread
-//   */
-// export function createThread() {
-
-//     let thread = getNewLengthObj();
-
-//     // the thread's current position
-//     thread.current = -1;
-
-//     // collection of nodeIds referenced by the thread
-//     thread.nodes = [];
-
-//     return thread;
-// }
-
 /**
  * Creates a new cache node and adds it to the repo.
  *
@@ -116,18 +96,6 @@ export function getNewCacheNode(instance: ICacheInstance) {
     instance.repo.add(node);
     return node;
 }
-
-// export function getNewLengthObj() {
-//     let obj: any = {};
-
-//     Object.defineProperty(obj, "length", {
-//         value: 0,
-//         enumerable: false,
-//         writable: true
-//     });
-//     obj.length = 0;
-//     return obj;
-// }
 
 export function hasUid(obj) {
     if (!obj) {

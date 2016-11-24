@@ -147,7 +147,6 @@ describe("evict", function () {
         one.put([item2, item3]);
 
         one.evict(item1);
-        one.print();
         expect(one.get(1)).to.be.undefined;
         expect(one.refTo(2)["1"]).to.be.undefined;
         expect(one.refTo(3)["1"]).to.be.undefined;
@@ -160,10 +159,8 @@ describe("evict", function () {
 
         let editable = one.getEdit(2);
         editable.children = undefined;
-        console.log(editable)
         one.put(editable);
 
-        one.print()
         expect(one.get(1)).to.be.undefined;
     });
 
@@ -184,7 +181,6 @@ describe("evict", function () {
         editable.items = [];
         one.put(editable);
 
-        one.print();
         expect(one.refTo(2)["1"]).to.be.undefined;
         expect(one.get(1)).to.be.undefined;
     });
@@ -198,7 +194,6 @@ describe("evict", function () {
             items: [item1, item3, item4]
         };
         one.put(item2);
-        one.print();
         expect(one.refTo(2).size()).to.equal(3);
         expect(one.refTo(2).paths[1][0]).to.equal('items.0')
         expect(one.refTo(2).paths[3][0]).to.equal('items.1')
@@ -231,17 +226,12 @@ describe("evict", function () {
             };
             one.put(item2); // 0
 
-            one.print();
-
             expect(one.size()).to.equal(4);
 
             let editable2 = one.getEdit(2);
             editable2.item = undefined;
             editable2.items = [];
-            console.log(editable2)
             one.put(editable2); // 1
-
-            one.print()
 
             let result = one.get(1);
             expect(result).to.not.be.undefined;
@@ -272,7 +262,6 @@ describe("evict", function () {
 
         expect(one.get("1a")).to.be.undefined;
         items = one.get(2).items;
-        one.print();
         expect(items.length).to.equal(1);
         expect(items[0].uid).to.equal(1);
 
@@ -397,7 +386,6 @@ describe("evict", function () {
         one.evict(1);
 
         expect(one.get(1)).to.be.undefined;
-        one.print();
 
         expect(one.refFrom('top').size()).to.equal(0);
         expect(one.refTo('top').paths[2][0]).to.equal('items.0.1')

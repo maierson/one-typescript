@@ -2,12 +2,11 @@ import { config, instances, setTesting } from '../src/cache';
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { configure } from '../src/config';
-import { isArray, deepClone, cacheSize, hasUid } from '../src/util';
+import { isArray, deepClone, cacheSize, hasUid, isEmpty } from '../src/util';
 import * as path from "../src/path";
 import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
-import LengthObject from '../src/LengthObject';
 
 describe("Utils", function () {
 
@@ -41,23 +40,29 @@ describe("Utils", function () {
         };
     }
 
-    // describe("deep-freeze", function () {
-    //     it('should freeze an object deeply', function () {
-    //         let obj: any = getTestObj();
-    //         deepFreeze(obj);
+    it('finds not array if missing splice', () => {
+        let obj: any = {};
+        obj["length"] = 0;
+        expect(isArray(obj)).to.be.false;
+    })
 
-    //         expect(() => {
-    //             obj.x = 5
-    //         }).to.throw(TypeError);
-    //         expect(() => {
-    //             obj.prototype.z = 5
-    //         }).to.throw(TypeError);
-    //     });
+    it('finds not array if length is enumerable', () => {
+        let obj: any = {};
+        obj["length"] = 0;
+        obj["splice"] = () => { };
+        expect(isArray(obj)).to.be.false;
+    })
 
-    //     it("should not blow up on null object", function () {
-    //         expect(deepFreeze()).to.be.undefined;
-    //     })
-    // });
+    it('finds empty obj value', () => {
+        let obj = {};
+        expect(isEmpty(obj)).to.be.true;
+    })
+
+    it('finds empty obj value', () => {
+        let obj = {};
+        obj["test"] = "test";
+        expect(isEmpty(obj)).to.be.false;
+    })
 
     describe("clone", function () {
         it("hasUid should return false on non object", function () {
@@ -213,11 +218,24 @@ describe("Utils", function () {
         })
     });
 
-    it('creates new length object', () => {
-        let obj: LengthObject = new LengthObject();
-        expect(obj.hasOwnProperty("length")).to.not.be.undefined;
-        expect(obj.length).to.equal(0);
-    })
+    // describe("deep-freeze", function () {
+    //     it('should freeze an object deeply', function () {
+    //         let obj: any = getTestObj();
+    //         deepFreeze(obj);
+
+    //         expect(() => {
+    //             obj.x = 5
+    //         }).to.throw(TypeError);
+    //         expect(() => {
+    //             obj.prototype.z = 5
+    //         }).to.throw(TypeError);
+    //     });
+
+    //     it("should not blow up on null object", function () {
+    //         expect(deepFreeze()).to.be.undefined;
+    //     })
+    // });
+
     // describe("dirty", function () {
     //     it("reads non uid item as dirty", function () {
     //         expect(One.isDirty({})).to.be.true;
