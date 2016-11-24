@@ -10,7 +10,9 @@ export interface ICacheThread {
     current: number,
 
     /* array of all node indices available for time travel */
-    nodes: Array<number>
+    nodes: Array<number>,
+
+    addNode: (nodeId: number) => void,
 }
 
 /**
@@ -19,4 +21,9 @@ export interface ICacheThread {
 export default class CacheThread implements ICacheThread {
     current: number = -1;
     nodes: Array<number> = [];
+
+    addNode = (nodeId: number) => {
+        this.nodes.push(nodeId);
+        this.current++;
+    }
 }

@@ -28,8 +28,6 @@ export const buildFlushMap = (flushArgs: IFlushArgs) => {
     // console.log("=====================================")
 
     if (hasUid(flushArgs.entity)) {
-        // reset the ref path at every new uid entity
-        flushArgs.refPath = "";
         buildEntityFlushMap(flushArgs);
     } else {
         if (isArray(flushArgs.entity)) {
@@ -37,23 +35,24 @@ export const buildFlushMap = (flushArgs: IFlushArgs) => {
         } else {
             cacheEntityRefs(flushArgs);
         }
-        //Object.freeze(flushArgs.entity);
     }
 };
 
 const buildEntityFlushMap = (flushArgs: IFlushArgs) => {
+    // reset the ref path at every new uid entity
+    flushArgs.refPath = "";
+
     if (isDirty(flushArgs) === true) {
-        // console.log("BUILD ENTITY FLUSH MAP",
-        //     "\n  entity:", flushArgs.entity)
 
         ensureOnFlushMap(flushArgs);
         cacheEntityRefs(flushArgs);
 
         // done with building this entity 
         // check its reference paths to make sure nothing is stale
-        let entityUid = String(flushArgs.entity[config.uidName]);
-
-        updateRefTos(entityUid, flushArgs);
+        updateRefTos(
+            String(flushArgs.entity[config.uidName]),
+            flushArgs
+        );
     }
 }
 
@@ -75,7 +74,7 @@ const ensureOnFlushMap = (flushArgs: IFlushArgs) => {
 /**
  * Caches the refs that might be contained in a javascript object
  * that optionally has a uid property. Loops through each property
- * to find the appropriate ones.
+ * to find the cacheable ones.
  *
  * @param flushArgs
  */
@@ -115,7 +114,7 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
                 // must do this even if item exists not dirty for refernce counting
                 cacheObjRefs(flushArgs);
             }
-            //     Object.freeze(refEntity);
+            Object.freeze(refEntity);
         }
     }
 };

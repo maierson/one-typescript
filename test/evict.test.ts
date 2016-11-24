@@ -7,6 +7,9 @@ import * as path from "../src/path";
 import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
+import { ICacheInstance } from '../src/CacheInstance';
+import CacheInstance from '../src/CacheInstance';
+import { CacheNode, ICacheNode } from '../src/CacheNode';
 
 describe("evict", function () {
 
@@ -410,6 +413,16 @@ describe("evict", function () {
         expect(one.refTo(2).size()).to.equal(1)
         expect(one.refTo(2).paths["1"][0]).to.equal('level0.level1.level2')
         // TODO evict 1
+    })
+
+    it('clears tail of nodes', () => {
+        let instance: ICacheInstance = new CacheInstance("test");
+        for (let i = 0; i < 3; i++) {
+            let node: ICacheNode = new CacheNode(i);
+            instance.addNode(node);
+        }
+
+
     })
 });
 

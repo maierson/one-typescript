@@ -2,6 +2,7 @@ import { ICacheRepo } from './CacheRepo';
 import CacheRepo from './CacheRepo';
 import CacheThread from './CacheThread';
 import { ICacheThread } from './CacheThread';
+import { ICacheNode } from './CacheNode';
 
 /**
  * Defines each instance of the cache.
@@ -25,7 +26,15 @@ export interface ICacheInstance {
     /** Increment this key every time a new node is assigned. */
     nextNodeKey: number,
 
-    reset: () => void
+    reset: () => void,
+
+    addNode: (node: ICacheNode) => boolean,
+
+    /* number of entities in the instance's repo */
+    size: () => number,
+
+    /* number of nodes in the instance */
+    length: () => number
 }
 
 export default class CacheInstance implements ICacheInstance {
@@ -33,12 +42,31 @@ export default class CacheInstance implements ICacheInstance {
     repo: ICacheRepo = new CacheRepo();
     thread: ICacheThread = new CacheThread();
     nextNodeKey: number = 0;
+
+    constructor(name: string) {
+        this.name = name;
+    }
+
     reset = () => {
         this.repo = new CacheRepo();
         this.thread = new CacheThread();
         this.nextNodeKey = 0;
     }
-    constructor(name: string) {
-        this.name = name;
+
+    addNode = (node: ICacheNode): boolean => {
+        if (this.repo.add(node)) {
+            this.thread.addNode(node.id);
+            this.nextNodeKey++;
+            return true;
+        }
+        return false;
+    }
+
+    length = (): number => {
+        return this.thread.nodes.length;
+    }
+
+    size = (): number => {
+        return this.repo.length;
     }
 }

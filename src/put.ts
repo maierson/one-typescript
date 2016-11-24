@@ -45,7 +45,7 @@ export const putItem = (entity: {} | Array<{}>, instance: ICacheInstance) => {
 
 const commitPut = (flushArgs: IFlushArgs): ICacheStats => {
     // remove from the nodes all states coming after the current state (clears history after now)
-    clearNext(flushArgs.instance);
+    // clearNext(flushArgs.instance);
     preFlush(flushArgs);
     return getCallStats(true, flushArgs.instance);
 }

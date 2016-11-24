@@ -19,7 +19,7 @@ module.exports = function (wallaby) {
         },
 
         workers: {
-            initial: 1,
+            initial: 0,
             regular: 1
         },
 
