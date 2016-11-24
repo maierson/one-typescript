@@ -113,22 +113,36 @@ const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheI
 const clearTargetRefFroms = (flushArgs: IFlushArgs) => {
     let item: CacheItem = getCachedItem(flushArgs.entityUid, flushArgs.instance);
     if (item) {
-        let ref_to = item.ref_to;
-        for (let refToUid in ref_to) {
-            if (ref_to.hasOwnProperty(refToUid)) {
-                let refItem: CacheItem = getItemFlushOrCached(refToUid, flushArgs);
-                if (refItem) {
-                    clearRefFrom(refItem, flushArgs.entityUid);
-                    if (refItem.ref_from.size() === 0) {
-                        flushArgs.entityUid = refToUid;
-                        clearTargetRefFroms(flushArgs);
-                        flushArgs.evictMap.set(refToUid, refItem);
-                    } else {
-                        flushArgs.flushMap.set(refToUid, refItem);
-                    }
+        item.mapTo.forEach((toUid, paths) => {
+            let refItem: CacheItem = getItemFlushOrCached(toUid, flushArgs);
+            if (refItem) {
+                clearRefFrom(refItem, flushArgs.entityUid);
+                if (refItem.mapFrom.size() === 0) {
+                    flushArgs.entityUid = toUid;
+                    clearTargetRefFroms(flushArgs);
+                    flushArgs.evictMap.set(toUid, refItem);
+                } else {
+                    flushArgs.flushMap.set(toUid, refItem);
                 }
             }
-        }
+        })
+
+        // let ref_to = item.mapTo;
+        // for (let refToUid in ref_to) {
+        //     if (ref_to.hasOwnProperty(refToUid)) {
+        //         let refItem: CacheItem = getItemFlushOrCached(refToUid, flushArgs);
+        //         if (refItem) {
+        //             clearRefFrom(refItem, flushArgs.entityUid);
+        //             if (refItem.mapFrom.size() === 0) {
+        //                 flushArgs.entityUid = refToUid;
+        //                 clearTargetRefFroms(flushArgs);
+        //                 flushArgs.evictMap.set(refToUid, refItem);
+        //             } else {
+        //                 flushArgs.flushMap.set(refToUid, refItem);
+        //             }
+        //         }
+        //     }
+        // }
     }
 };
 
@@ -139,13 +153,13 @@ const clearTargetRefFroms = (flushArgs: IFlushArgs) => {
    * @param parentUid
    */
 const clearRefFrom = (refItem: CacheItem, parentUid) => {
-    let refsArray = refItem.ref_from[parentUid];
+    let refsArray = refItem.mapFrom[parentUid];
     if (!refsArray) {
         return;
     }
-    refItem.ref_from = refItem.ref_from.clone();
+    refItem.mapFrom = refItem.mapFrom.clone();
     // cloneRef(refItem, REF_FROM);
-    refItem.ref_from.delete(parentUid);
+    refItem.mapFrom.delete(parentUid);
     // refItem.ref_from[parentUid] = undefined;
     // delete refItem.ref_from[parentUid]; // where it works
     // if (refItem.ref_from.size() > 0) {
@@ -175,7 +189,7 @@ const clearParentRefTos = (uidArray, parentsChanged, flushArgs: IFlushArgs) => {
     let item: CacheItem = getItemFlushOrCached(flushArgs.entityUid, flushArgs);
 
     if (item) {
-        let refFrom = item.ref_from;
+        let refFrom = item.mapFrom;
         console.log(refFrom)
         for (let parentUid in refFrom) {
             if (refFrom.hasOwnProperty(parentUid)) {
@@ -207,7 +221,7 @@ const clearRefTo = (parentItem: CacheItem, refUid, instance: ICacheInstance) => 
         parent = getEditItem(parent[config.uidName], instance);
         parentItem.entity = parent;
     }
-    let refPaths = parentItem.ref_to[refUid];
+    let refPaths = parentItem.mapTo[refUid];
     refPaths.forEach(path => {
         opath.del(parent, path);
     });
@@ -217,8 +231,8 @@ const clearRefTo = (parentItem: CacheItem, refUid, instance: ICacheInstance) => 
     parentItem.entity = parent;
 
     // then clear the metadata
-    parentItem.ref_to = parentItem.ref_to.clone();
-    parentItem.ref_to.delete(refUid);
+    parentItem.mapTo = parentItem.mapTo.clone();
+    parentItem.mapTo.delete(refUid);
     // cloneRef(parentItem, REF_TO);
     // parentItem.ref_to[refUid] = undefined;
     // delete parentItem.ref_to[refUid]; // where it works

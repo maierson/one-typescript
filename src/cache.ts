@@ -120,12 +120,12 @@ function createCache(name: string): ICache {
 
     const refFrom = uid => {
         let item = getCachedItem(uid, instance);
-        return item.ref_from;
+        return item.mapFrom;
     };
 
     const refTo = uid => {
         let item = getCachedItem(uid, instance);
-        return item.ref_to;
+        return item.mapTo;
     };
 
     let result = {

@@ -1,4 +1,3 @@
-import { print } from '../src/print'
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { configure } from '../src/config';
@@ -7,6 +6,7 @@ import * as path from "../src/path";
 import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
+import { flush } from '../src/flush';
 
 describe("FlushMap", () => {
     let flushMap;
@@ -71,6 +71,10 @@ describe("FlushMap", () => {
         expect(result[3]).to.equal('two')
         expect(result[4]).to.equal('node3')
         expect(result[5]).to.equal('three')
+    })
+
+    it('does not enumerate length', () => {
+        console.log(flushMap.propertyIsEnumerable("_length"))
     })
 })
 

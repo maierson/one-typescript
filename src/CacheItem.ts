@@ -9,19 +9,19 @@ const objectAssign = require('object-assign');
  */
 export default class CacheItem {
     entity: {};
-    ref_from: CacheMap<Array<string>>;
-    ref_to: CacheMap<Array<string>>;
+    mapTo: CacheMap<Array<string>>;
+    mapFrom: CacheMap<Array<string>>;
 
     constructor(entity: {}, liveItem?: CacheItem) {
         this.entity = entity;
         // if existing copy the data from the live item else just initialize it
         if (liveItem) {
             // each path is an array of strings so they get duplicated automatically
-            this.ref_from = liveItem.ref_from.clone();
-            this.ref_to = liveItem.ref_to.clone();
+            this.mapFrom = liveItem.mapFrom.clone();
+            this.mapTo = liveItem.mapTo.clone();
         } else {
-            this.ref_from = new CacheMap<Array<string>>();
-            this.ref_to = new CacheMap<Array<string>>();
+            this.mapFrom = new CacheMap<Array<string>>();
+            this.mapTo = new CacheMap<Array<string>>();
         }
     }
 

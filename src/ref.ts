@@ -29,7 +29,7 @@ const assignRefs = (parentItem: CacheItem, refItem: CacheItem, refPath: string) 
 };
 
 /**
-  * Adds ref_to metadata to a parent item that contains a referenced uid entity.
+  * Adds mapTo metadata to a parent item that contains a referenced uid entity.
   *
   * @param {{}} parentItem the item of the parent entity
   * @param {string} refUid the uid of the referenced entity
@@ -37,12 +37,15 @@ const assignRefs = (parentItem: CacheItem, refItem: CacheItem, refPath: string) 
   * @returns {{}} the parentItem just in case it was cloned for purity
   */
 const addRefTo = (parentItem, refUid, path) => {
-    let refTo = parentItem.ref_to;
-    if (!parentItem.ref_to[refUid]) {
-        parentItem.ref_to[refUid] = [];
-        parentItem.ref_to.length += 1;
+    let refTo = parentItem.to;
+    if (parentItem.mapTo.has(refUid) === false) {
+        parentItem.mapTo.set(refUid, [])
     }
-    let refArray = refTo[refUid];
+    // if (!parentItem.mapTo[refUid]) {
+    //     parentItem.mapTo[refUid] = [];
+    //     parentItem.mapTo.length += 1;
+    // }
+    let refArray = parentItem.mapTo.get(refUid);
     if (refArray.indexOf(path) < 0) {
         refArray.push(path);
     }
@@ -50,19 +53,17 @@ const addRefTo = (parentItem, refUid, path) => {
 };
 
 /**
- * Adds ref_from metadata to a referenced item that is contained in the parent entity.
+ * Adds mapFrom metadata to a referenced item that is contained in the parent entity.
  *
  * @param {{}} refItem the item of the referenced entity
  * @param {string} parentUid the uid of the parent entity
  * @param {string} path the path inside the parent entity where the referenced entity is located
  */
 const addRefFrom = (refItem, parentUid, path) => {
-    let refFrom = refItem.ref_from;
-    if (!refItem.ref_from[parentUid]) {
-        refItem.ref_from[parentUid] = [];
-        refItem.ref_from.length += 1;
+    if (refItem.mapFrom.has(parentUid) === false) {
+        refItem.mapFrom.set(parentUid, []);
     }
-    let fromArray = refFrom[parentUid];
+    let fromArray = refItem.mapFrom.get(parentUid);
     if (fromArray.indexOf(path) < 0) {
         fromArray.push(path);
     }
@@ -79,14 +80,12 @@ const addRefFrom = (refItem, parentUid, path) => {
 export const updateRefTos = (entityUid, flushArgs: IFlushArgs) => {
     let item = getItemFlushOrCached(entityUid, flushArgs);
     if (item) {
-        let refTo = item.ref_to;
         // check the references for each referenced item. References are keyed by refToUid in the refTo object.
         // Each refToUid value is an array containing a list of paths where the reference is located inside this
         // entity
-        refTo.forEach((refToUid, val) => {
-            console.log("ITERATING", refToUid);
+        item.mapTo.forEach((toUid, paths) => {
+            console.log("ITERATING", toUid);
             // get the list of paths
-            let paths = refTo[refToUid];
             // update the paths array to contain only the remaining references
             let updatedPaths = paths.map(path => {
                 let reference = opath.get(item.entity, path);
@@ -94,61 +93,61 @@ export const updateRefTos = (entityUid, flushArgs: IFlushArgs) => {
                     let targetUid = reference[config.uidName];
                     if (targetUid) {
                         // *** keep double equality here to convert strings to numbers
-                        let found = targetUid == refToUid;
+                        let found = targetUid == toUid;
                         if (found === true) {
                             return path;
                         }
                     }
                 }
-                removeRefFrom_Value(entityUid, refToUid, flushArgs);
+                removeRefFrom_Value(entityUid, toUid, flushArgs);
             }).filter(item => {
                 return item !== null && item !== undefined;
             });
 
             // update or remove the paths
             if (updatedPaths.length > 0) {
-                item.ref_to[refToUid] = updatedPaths;
+                item.mapTo[toUid] = updatedPaths;
             } else {
-                item.ref_to[refToUid] = undefined;
-                delete item.ref_to[refToUid];
+                item.mapTo[toUid] = undefined;
+                delete item.mapTo[toUid];
             }
         })
-        for (let refToUid in refTo) {
-            if (refTo.hasOwnProperty(refToUid)) {
-                // // get the list of paths
-                // let paths = refTo[refToUid];
-                // // update the paths array to contain only the remaining references
-                // let updatedPaths = paths.map(path => {
-                //     let reference = opath.get(item.entity, path);
-                //     if (reference) {
-                //         let targetUid = reference[config.uidName];
-                //         if (targetUid) {
-                //             // *** keep double equality here to convert strings to numbers
-                //             let found = targetUid == refToUid;
-                //             if (found === true) {
-                //                 return path;
-                //             }
-                //         }
-                //     }
-                //     removeRefFrom_Value(entityUid, refToUid, flushArgs);
-                // }).filter(item => {
-                //     return item !== null && item !== undefined;
-                // });
+        // for (let refToUid in refTo) {
+        //     if (refTo.hasOwnProperty(refToUid)) {
+        //         // // get the list of paths
+        //         // let paths = refTo[refToUid];
+        //         // // update the paths array to contain only the remaining references
+        //         // let updatedPaths = paths.map(path => {
+        //         //     let reference = opath.get(item.entity, path);
+        //         //     if (reference) {
+        //         //         let targetUid = reference[config.uidName];
+        //         //         if (targetUid) {
+        //         //             // *** keep double equality here to convert strings to numbers
+        //         //             let found = targetUid == refToUid;
+        //         //             if (found === true) {
+        //         //                 return path;
+        //         //             }
+        //         //         }
+        //         //     }
+        //         //     removeRefFrom_Value(entityUid, refToUid, flushArgs);
+        //         // }).filter(item => {
+        //         //     return item !== null && item !== undefined;
+        //         // });
 
-                // // update or remove the paths
-                // if (updatedPaths.length > 0) {
-                //     item.ref_to[refToUid] = updatedPaths;
-                // } else {
-                //     item.ref_to[refToUid] = undefined;
-                //     delete item.ref_to[refToUid];
-                // }
-            }
-        }
+        //         // // update or remove the paths
+        //         // if (updatedPaths.length > 0) {
+        //         //     item.mapTo[refToUid] = updatedPaths;
+        //         // } else {
+        //         //     item.mapTo[refToUid] = undefined;
+        //         //     delete item.mapTo[refToUid];
+        //         // }
+        //     }
+        // }
     }
 };
 
 /**
-  * Removes a path value from an item's ref_from metadata. It places it either on the flush map if it was updated or
+  * Removes a path value from an item's mapFrom metadata. It places it either on the flush map if it was updated or
   * the evict map if there are no references left over.
   *
   * @param parentUid uid of the entity holding the reference that might have been changed
@@ -164,12 +163,12 @@ const removeRefFrom_Value = (parentUid, refUid, flushArgs: IFlushArgs) => {
         // make a new instance (pure function)
         refItem = refItem.clone();// objectAssign({}, refItem);
 
-        //cloneRef(refItem, REF_FROM);
+        //cloneRef(refItem, mapFrom);
         // remove the path from the refFrom
-        if (refItem.ref_from.hasOwnProperty(parentUid)) {
+        if (refItem.mapFrom.hasOwnProperty(parentUid)) {
             // get the array of refs
             removeRefFrom(refItem, parentUid, flushArgs.refPath);
-            if (refItem.ref_from.size() === 0) {
+            if (refItem.mapFrom.size() === 0) {
                 flushArgs.evictMap.set(refUid, refItem);
                 // just in case
                 flushArgs.flushMap.delete(refUid);
@@ -183,17 +182,18 @@ const removeRefFrom_Value = (parentUid, refUid, flushArgs: IFlushArgs) => {
 };
 
 const removeRefFrom = (item, parentUid, path) => {
-    let refsArray = item.ref_from[parentUid];
+    let refsArray = item.mapFrom[parentUid];
 
     let index = refsArray.indexOf(path);
 
     // make an editable copy
     refsArray = refsArray.slice();
     refsArray.splice(index, 1);
-    item.ref_from[parentUid] = refsArray;
+    item.mapFrom.set(parentUid, refsArray);
     if (refsArray.length == 0) {
-        item.ref_from[parentUid] = undefined;
-        delete item.ref_from[parentUid];
-        item.ref_from.length -= 1;
+        item.mapFrom.delete(parentUid);
+        // item.mapFrom[parentUid] = undefined;
+        // delete item.mapFrom[parentUid];
+        // item.mapFrom.length -= 1;
     }
 };

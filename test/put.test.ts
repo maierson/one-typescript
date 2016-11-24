@@ -2,7 +2,7 @@ import { config, instances, setTesting } from '../src/cache';
 import { expect } from 'chai'
 import * as sinon from 'sinon'
 import { configure } from '../src/config';
-import { isArray, deepClone } from '../src/util';
+import { isArray, deepClone, hasUid } from '../src/util';
 import * as path from "../src/path";
 import * as mocha from 'mocha';
 import * as One from '../src/cache';
@@ -87,11 +87,35 @@ describe("put-get", function () {
         expect(Object.isFrozen(result.items)).to.be.true;
     });
 
-    it.only("puts item with array of arrays", () => {
-        let item = { uid: 1, items: [[{ uid: 1 }, { uid: 2 }], ["three"]] };
+    it("puts item with array of arrays", () => {
+        let item = { uid: 'top', items: [[{ uid: 1 }, { uid: 2 }], [{ uid: 3 }]] };
         one.put(item);
-        one.print()
-        fail
+
+        expect(one.refFrom(1).get("top")[0]).to.equal("items.0.0");
+        expect(one.refFrom(1).size()).to.equal(1);
+        expect(one.refTo(1).size()).to.equal(0);
+
+        expect(one.refFrom(2).get("top")[0]).to.equal("items.0.1");
+        expect(one.refFrom(2).size()).to.equal(1);
+        expect(one.refTo(2).size()).to.equal(0);
+
+        expect(one.refFrom(3).get("top")[0]).to.equal("items.1.0");
+        expect(one.refFrom(3).size()).to.equal(1);
+        expect(one.refTo(3).size()).to.equal(0);
+    })
+
+    it("puts item with array of arrays repeating", () => {
+        let item = { uid: 'top', items: [[{ uid: 1 }, { uid: 2 }], [{ uid: 1 }]] };
+        one.put(item);
+
+        expect(one.refFrom(1).get("top")[0]).to.equal("items.0.0");
+        expect(one.refFrom(1).get("top")[1]).to.equal("items.1.0");
+        expect(one.refFrom(1).size()).to.equal(1);
+        expect(one.refTo(1).size()).to.equal(0);
+
+        expect(one.refFrom(2).get("top")[0]).to.equal("items.0.1");
+        expect(one.refFrom(2).size()).to.equal(1);
+        expect(one.refTo(2).size()).to.equal(0);
     })
 
     it("freezes entity deeply", function () {
@@ -300,39 +324,6 @@ describe("put-get", function () {
         expect(one.get(2)).to.not.be.undefined;
         expect(one.get(3)).to.not.be.undefined;
     });
-
-
-
-
-
-    // it("detects shallow dirty entity", function () {
-    //     let item1 = { uid: 1 };
-    //     let item2 = { uid: 2 };
-    //     one.put(item1);
-    //     expect(one.isDirty(item1)).to.be.false;
-    //     expect(one.isDirty(item2)).to.be.true;
-    //     expect(one.isDirty(one.get(1))).to.be.false;
-    //     expect(one.isDirty(one.getEdit(1))).to.be.true;
-    // });
-
-    // // this goes one back, removes all the items after the current state
-    // // and adds a new state with the appropriate changes
-    // it("puts and updates entity correctly after undo", function () {
-    //     let item1 = { uid: 1 };
-    //     one.put(item1);
-    //     let item2 = { uid: 2, item: item1 };
-    //     one.put(item2);
-
-    //     let state = one.undo();
-    //     expect(state.success).to.be.true;
-    //     expect(state.hasPrev).to.be.false;
-    //     expect(state.hasNext).to.be.true;
-
-    //     item1 = one.getEdit(1);
-    //     item1.text = "text";
-    //     state = one.put(item1);
-    //     expect(one.get(1).text).to.equal("text");
-    // });
 
     it("replaces existing props on existing entity "
         + "when putting new entity that does not have them", function () {
@@ -781,7 +772,7 @@ describe("put-get", function () {
 
             let item3 = {
                 uid: 3,
-                item: item1,
+                // item: item1, // cannot do this - it introduces 2 different instances with same uid in one shot
                 otherItem: otherItem1
             };
             one.put(item3);
@@ -795,10 +786,12 @@ describe("put-get", function () {
             expect(result_2.child.value).to.equal("two");
 
             let result_3 = one.get(3);
-            expect(result_2.child === result_3.item).to.be.true;
-            expect(result_3.item === result_3.otherItem).to.be.true;
             expect(result_2.child === result_3.otherItem).to.be.true;
         });
+
+    it('rejects putting 2 instances in one put with same uid', () => {
+
+    })
 
     it("preserves properties with null values", function () {
         let item1 = { uid: 1, value: "one" };
@@ -862,13 +855,13 @@ describe("put-get", function () {
         one.put(item2);
         let result = one.get(2);
 
-        let refFrom = one.refFrom(1);
+        let refFrom = one.refFrom(1).paths;
         expect(refFrom["2"]).to.not.be.undefined;
         expect(isArray(refFrom["2"])).to.be.true;
         expect(refFrom["2"][0]).to.equal("rootItem");
         expect(refFrom["2"][1]).to.equal("ref.inner.item");
 
-        let refTo = one.refTo(2);
+        let refTo = one.refTo(2).paths;
         expect(refTo["1"]).to.not.be.undefined;
         expect(isArray(refTo["1"])).to.be.true;
         expect(refTo["1"][0]).to.equal("rootItem");
@@ -895,9 +888,24 @@ describe("put-get", function () {
             items: [item]
         };
         one.put(item2);
-        expect(one.refTo(2)["1"][0]).to.equal("items.0");
-        expect(one.refFrom(1)["2"][0]).to.equal("items.0");
+        expect(one.refTo(2).paths["1"][0]).to.equal("items.0");
+        expect(one.refFrom(1).paths["2"][0]).to.equal("items.0");
     });
+
+    it("builds prop chain for nested objects", () => {
+        let item1 = { uid: 1 };
+        let item2 = {
+            uid: 2,
+            level0: {
+                level1: {
+                    level2: item1
+                }
+            }
+        }
+        one.put(item2);
+        expect(one.refTo(2).size()).to.equal(1)
+        expect(one.refTo(2).paths["1"][0]).to.equal('level0.level1.level2')
+    })
 
     it("builds the prop chain for inner nested array items", function () {
         let item1 = { uid: 1 };
@@ -905,12 +913,19 @@ describe("put-get", function () {
         let item2 = { uid: 2, items: [item1, item3] };
         one.put([item2, item3]);
 
-        one.print();
-
         let items = one.get(2).items;
         expect(items.length).to.equal(2);
 
-        expect(one.refFrom(3)["2"]).to.equal("items.0");
+        expect(one.refTo(1).size()).to.equal(0)
+        expect(one.refFrom(1).paths[2][0]).to.equal('items.0')
+        expect(one.refFrom(1).paths[3][0]).to.equal('item')
+
+        expect(one.refTo(2).paths[1][0]).to.equal('items.0');
+        expect(one.refTo(2).paths[3][0]).to.equal('items.1');
+        expect(one.refTo(2).size()).to.equal(2);
+
+        expect(one.refFrom(3).paths["2"][0]).to.equal("items.1");
+        expect(one.refFrom(3).size()).to.equal(1)
     })
 
     it("builds the prop chain correctly for nested array", function () {
@@ -922,8 +937,10 @@ describe("put-get", function () {
         //TODO maybe keep track of number of refs inside an array to know how deep to search (might be overkill and
         // better to just iterate the array to the end when removing references
         one.put(item2);
-        expect(one.refTo(2)["1"][0]).to.equal("items.0");
-        expect(one.refFrom(1)["2"][0]).to.equal("items.0");
+        expect(one.refTo(2).paths["1"][0]).to.equal("items.0");
+        expect(one.refTo(2).size()).to.equal(1);
+        expect(one.refFrom(1).paths["2"][0]).to.equal("items.0");
+        expect(one.refFrom(1).size()).to.equal(1);
     });
 
     it("replaces existing entities if putting dirty", function () {
@@ -1043,6 +1060,35 @@ describe("put-get", function () {
     //         expect(one.get(1)).to.be.undefined;
     //         expect(one.get(3)).to.be.undefined;
     //     })
+
+    // it("detects shallow dirty entity", function () {
+    //     let item1 = { uid: 1 };
+    //     let item2 = { uid: 2 };
+    //     one.put(item1);
+    //     expect(one.isDirty(item1)).to.be.false;
+    //     expect(one.isDirty(item2)).to.be.true;
+    //     expect(one.isDirty(one.get(1))).to.be.false;
+    //     expect(one.isDirty(one.getEdit(1))).to.be.true;
+    // });
+
+    // // this goes one back, removes all the items after the current state
+    // // and adds a new state with the appropriate changes
+    // it("puts and updates entity correctly after undo", function () {
+    //     let item1 = { uid: 1 };
+    //     one.put(item1);
+    //     let item2 = { uid: 2, item: item1 };
+    //     one.put(item2);
+
+    //     let state = one.undo();
+    //     expect(state.success).to.be.true;
+    //     expect(state.hasPrev).to.be.false;
+    //     expect(state.hasNext).to.be.true;
+
+    //     item1 = one.getEdit(1);
+    //     item1.text = "text";
+    //     state = one.put(item1);
+    //     expect(one.get(1).text).to.equal("text");
+    // });
 });
 
 

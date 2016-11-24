@@ -355,6 +355,40 @@ describe.skip("evict", function () {
         one.put(item1);
         expect(one.get(2).item.item).to.be.undefined;
     })
+
+    it.only("evicts item with array of arrays repeating", () => {
+        let item = { uid: 'top', items: [[{ uid: 1 }, { uid: 2 }], [{ uid: 1 }]] };
+        one.put(item);
+
+        one.evict(1);
+
+        one.print();
+
+        expect(one.refFrom(1).get("top")[0]).to.equal("items.0.0");
+        expect(one.refFrom(1).get("top")[1]).to.equal("items.1.0");
+        expect(one.refFrom(1).size()).to.equal(1);
+        expect(one.refTo(1).size()).to.equal(0);
+
+        expect(one.refFrom(2).get("top")[0]).to.equal("items.0.1");
+        expect(one.refFrom(2).size()).to.equal(1);
+        expect(one.refTo(2).size()).to.equal(0);
+    })
+
+    it("builds prop chain for nested objects", () => {
+        let item1 = { uid: 1 };
+        let item2 = {
+            uid: 2,
+            level0: {
+                level1: {
+                    level2: item1
+                }
+            }
+        }
+        one.put(item2);
+        expect(one.refTo(2).size()).to.equal(1)
+        expect(one.refTo(2).paths["1"][0]).to.equal('level0.level1.level2')
+        // TODO evict 1
+    })
 });
 
 

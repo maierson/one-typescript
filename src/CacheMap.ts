@@ -4,56 +4,56 @@ const objectAssign = require('object-assign');
 
 export default class CacheMap<T> {
 
-    instance = {};
-    _length = 0;
+    paths = {};
+    length = 0;
 
     constructor() {
     }
 
     set(key: string | number, value: T): boolean {
-        if (typeof this.instance[key] === "undefined") {
-            this._length++;
-            this.instance[key] = value;
+        if (typeof this.paths[key] === "undefined") {
+            this.length++;
+            this.paths[key] = value;
             return true;
         }
-        this.instance[key] = value;
+        this.paths[key] = value;
         return false;
     }
 
     get = (key): T => {
-        return this.instance[key];
+        return this.paths[key];
     }
 
     delete = (key): boolean => {
-        if (typeof this.instance[key] !== "undefined" && this._length > 0) {
-            let val = this.instance[key];
-            delete this.instance[key];
-            this._length--;
+        if (typeof this.paths[key] !== "undefined" && this.length > 0) {
+            let val = this.paths[key];
+            delete this.paths[key];
+            this.length--;
             return val;
         }
     }
 
     has = (key): boolean => {
-        return typeof this.instance[key] !== 'undefined';
+        return typeof this.paths[key] !== 'undefined';
     }
 
     forEach = (callback: Function) => {
-        for (var key in this.instance) {
-            if (this.instance.hasOwnProperty(key)) {
-                callback(key, this.instance[key]);
+        for (var key in this.paths) {
+            if (this.paths.hasOwnProperty(key)) {
+                callback(key, this.paths[key]);
             }
         }
     }
 
     clone = (): CacheMap<T> => {
-        let newInstance = objectAssign({}, this.instance);
+        let newInstance = objectAssign({}, this.paths);
         let clone: CacheMap<T> = new CacheMap<T>();
-        clone.instance = newInstance;
-        clone._length = this._length;
+        clone.paths = newInstance;
+        clone.length = this.length;
         return clone;
     }
 
     size(): number {
-        return this._length;
+        return this.length;
     }
 }
