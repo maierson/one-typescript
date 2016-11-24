@@ -34,7 +34,7 @@ export interface ICacheStats {
     success: boolean,
 
     /* id of the node that the current operation created if successful */
-    node: number,
+    nodeId: number,
 
     /* total number of nodes on the cache */
     length: number,

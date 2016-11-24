@@ -8,7 +8,7 @@ import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
 import { flush } from '../src/flush';
 
-describe("FlushMap", () => {
+describe("CacheMap", () => {
     let flushMap;
 
     beforeEach(() => {

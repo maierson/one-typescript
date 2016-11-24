@@ -12,7 +12,7 @@ import { ICacheStats } from './interfaces';
 export const getCallStats = (success: boolean, instance: ICacheInstance): ICacheStats => {
     let result: any = {};
     result.success = success;
-    result.node = node(instance);
+    result.nodeId = node(instance);
     result.length = length(instance);
     result.name = instance.name;
     return result;
@@ -27,7 +27,7 @@ export const getCallStats = (success: boolean, instance: ICacheInstance): ICache
  * @returns {*} for node() - the id of the node if existing or -1 if cache is empty, for node(id) the current
  *     history state
  */
-const node = (instance: ICacheInstance, nodeId?): number | ICacheStats => {
+export const node = (instance: ICacheInstance, nodeId?): number | ICacheStats => {
     // guard for 0 values
     if (typeof nodeId === "undefined") {
         let currentNode = getCurrentNode(instance);
@@ -101,6 +101,6 @@ function binaryIndexOf(array: Array<any>, searchElement) {
         }
     }
     /* istanbul ignore next - it never gets here really*/
-    return -1;
+    //  return -1;
 }
 
