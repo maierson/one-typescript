@@ -119,11 +119,9 @@ describe("Path", function () {
         });
 
         it('should delete deep paths', function () {
-            var obj = getTestObj();
+            var obj: any = getTestObj();
 
             expect(objectPath.del(obj)).to.be.equal(obj);
-
-
 
             obj = {
                 a: 'b',

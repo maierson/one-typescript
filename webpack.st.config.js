@@ -1,11 +1,11 @@
 var path = require('path');
 var webpack = require('webpack');
 
-//var TARGET            = process.env.npm_lifecycle_event;
-//process.env.BABEL_ENV = TARGET;
+// var TARGET = process.env.npm_lifecycle_event;
+// process.env.BABEL_ENV = TARGET;
 
 const ROOT_PATH = path.resolve(__dirname);
-const DIST_PATH = path.resolve(ROOT_PATH, "dist");
+const DIST_PATH = path.resolve("", "/Users/maierdesign/GIT/maierinc_react/7.\ Kolorhub/war/js");
 const APP_PATH = path.resolve(ROOT_PATH, "src");
 const MAIN_PATH = path.resolve(ROOT_PATH, "src/index.ts");
 

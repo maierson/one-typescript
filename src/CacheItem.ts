@@ -1,6 +1,5 @@
 import CacheMap from './CacheMap';
 declare let require: any;
-const objectAssign = require('object-assign');
 
 /**
  * Stores a reference to a single entity inside a ICacheNode. It also

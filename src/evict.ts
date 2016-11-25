@@ -10,7 +10,6 @@ import { IFlushArgs } from './interfaces';
 import { getCallStats } from './locate';
 import { updatePointers, updateRefFroms } from './ref';
 declare let require: any;
-const objectAssign = require('object-assign');
 
 /**
  *
@@ -100,8 +99,8 @@ const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheI
         buildFlushMap(flushArgs);
         // refTos have been updated already only handle refFroms
         flushArgs.flushMap.forEach((key, item: CacheItem) => {
-            // do not modify flush map on its own iteration but ok to pass along for reference
-            let refsFrom = item.mapFrom;
+            // do not modify flush map on its own iteration 
+            // but ok to pass along for reference
             updateRefFroms(item, flushArgs);
         })
     }

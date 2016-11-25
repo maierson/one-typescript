@@ -15,7 +15,7 @@ function getKey(key) {
     return key;
 }
 
-export function del(obj, path) {
+export function del(obj: any, path?) {
     if (isNumber(path)) {
         path = [path];
     }

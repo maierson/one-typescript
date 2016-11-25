@@ -10,7 +10,6 @@ import { IFlushArgs } from './interfaces';
 import CacheMap from './CacheMap';
 import { assignRefToParent, updateRefTos } from './ref';
 declare let require: any;
-const objectAssign = require('object-assign');
 
 /**
  * Analyzes an entity deeply and adds all its cacheable references to the flushMap
@@ -63,9 +62,7 @@ const buildEntityFlushMap = (flushArgs: IFlushArgs) => {
 const ensureOnFlushMap = (flushArgs: IFlushArgs) => {
     let entityUid = String(flushArgs.entity[config.uidName]);
     if (flushArgs.flushMap.has(entityUid) === false) {
-        let entity = flushArgs.entity;
         ensureItem(flushArgs);
-
         // reset the parent uid to the object being iterated down
         flushArgs.parentUid = String(entityUid);
     }
@@ -185,14 +182,6 @@ const cacheArrRefs = (flushArgs: IFlushArgs) => {
     * @param refPath
     */
 const cacheObjRefs = (flushArgs: IFlushArgs) => {
-    let refEntity = flushArgs.entity;
-
-    // console.log("CACHE OBJ REFS",
-    //     "\n  entity:", flushArgs.entity,
-    //     "\n  parentUid:", flushArgs.parentUid,
-    //     "\n  refPath:", flushArgs.refPath)
-
-
     if (hasUid(flushArgs.entity)) {
         cacheUidObjRefs(flushArgs);
     } else {

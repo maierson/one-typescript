@@ -40,7 +40,6 @@ const assignRefs = (parentItem: CacheItem, refItem: CacheItem, refPath: string) 
   * @returns {{}} the parentItem just in case it was cloned for purity
   */
 const addRefTo = (parentItem, refUid, path) => {
-    let refTo = parentItem.to;
     if (parentItem.mapTo.has(refUid) === false) {
         parentItem.mapTo.set(refUid, [])
     }
@@ -77,7 +76,6 @@ export const updatePointers = (flushArgs: IFlushArgs) => {
     // at this point all items are added into the flush map - update their pointers if applicable
     flushArgs.flushMap.forEach((key, item: CacheItem) => {
         // do not modify flush map on its own iteration but ok to pass along for reference
-        let refsFrom = item.mapFrom;
         updateItemRefTos(item, flushArgs);
         updateRefFroms(item, flushArgs);
     })

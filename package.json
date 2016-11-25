@@ -10,8 +10,8 @@
     "test": "test",
     "build:js": "webpack --config webpack.config.js",
     "build:js:min": "webpack --config webpack.config.production.js",
-    "build:lib": "babel src --out-dir lib",
-    "build": "npm run build:lib && npm run build:js && npm run build:js:min"
+    "build": "npm run build:js && npm run build:js:min",
+    "tt": "webpack --config webpack.st.config.js"
   },
   "author": "Dan Maier",
   "license": "MIT",
@@ -33,6 +33,7 @@
     "path": "^0.12.7",
     "sinon": "git+https://github.com/sinonjs/sinon.git",
     "sinon-chai": "^2.8.0",
+    "ts-loader": "^1.2.2",
     "typescript": "^2.0.10",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.8.2",
