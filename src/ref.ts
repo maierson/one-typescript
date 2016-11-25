@@ -143,7 +143,6 @@ const updateItemRefTos = (item: CacheItem, flushArgs: IFlushArgs) => {
                     if (targetUid) {
                         // *** keep double equality here to convert strings to numbers
                         let found = targetUid == toUid;
-                        // console.log("UPDATE REF TOS FOUND", item, targetUid)
                         if (found === true) {
                             return path;
                         }

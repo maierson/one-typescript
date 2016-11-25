@@ -16,9 +16,9 @@ import { node } from '../src/locate';
 describe("evict", function () {
 
     "use strict";
+    setTesting(true);
 
     let one;
-    setTesting(true);
     function printCache() {
         //      print(one, "CACHE");
     }
