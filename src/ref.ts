@@ -82,7 +82,6 @@ export const updatePointers = (flushArgs: IFlushArgs) => {
 }
 
 export const updateRefFroms = (item: CacheItem, flushArgs: IFlushArgs) => {
-    console.log("UPDATE REF FROMS", item)
     item.mapFrom.forEach((parentUid, paths) => {
         let parentItem = flushArgs.flushMap.get(parentUid);
         if (!parentItem) {
@@ -129,13 +128,12 @@ export const updateRefTos = (entityUid, flushArgs: IFlushArgs) => {
 };
 
 const updateItemRefTos = (item: CacheItem, flushArgs: IFlushArgs) => {
-    console.log("UPDATE REF TOS", item)
+
     if (item) {
         // check the references for each referenced item. References are keyed by refToUid in the refTo object.
         // Each refToUid value is an array containing a list of paths where the reference is located inside this
         // entity
         item.mapTo.forEach((toUid, paths) => {
-            console.log("ITERATING", toUid);
             // get the list of paths
             // update the paths array to contain only the remaining references
             let updatedPaths = paths.map(path => {

@@ -11,6 +11,7 @@ import CacheMap from '../src/CacheMap';
 describe("setup", function () {
 
     let one;
+    setTesting(false);
 
     beforeEach(function () {
         setTesting(false);
@@ -37,7 +38,6 @@ describe("setup", function () {
     });
 
     it("initializes with no map", function () {
-        console.log("One " + JSON.stringify(one))
         expect(one).to.not.be.null;
         expect(one.size()).to.equal(0);
         expect(one.length()).to.equal(0);

@@ -55,8 +55,6 @@ export const evictItem = (obj, instance: ICacheInstance) => {
 
     let parentsChanged = [];
 
-    console.log(uidArray)
-
     uidArray.forEach(uid => {
         flushArgs.entityUid = uid;
 
@@ -71,8 +69,6 @@ export const evictItem = (obj, instance: ICacheInstance) => {
     });
 
     putParentsChanged(parentsChanged, flushMap, evictMap, instance);
-
-    console.log(parentsChanged);
 
     // updates
     flushMap.forEach((key, item: CacheItem) => {

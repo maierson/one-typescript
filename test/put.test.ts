@@ -449,7 +449,6 @@ describe("put-get", function () {
             }
         };
         let callRes = one.put(item3);
-        console.log(callRes)
         expect(one.length()).to.equal(1);
         expect(one.size()).to.equal(2);
 
@@ -461,7 +460,6 @@ describe("put-get", function () {
         // change item 1 and make sure it modified in item2 on current state but not previous
         item1.text = "text";
         let resultState = one.put(item1);
-        console.log(resultState)
         let result = one.get(3);
         expect(result.otherItem.nested.text).to.equal("text");
         // one.undo();
@@ -984,7 +982,6 @@ describe("put-get", function () {
         one.put(item2);
         let editable = one.getEdit(2);
         editable.item = undefined;
-        console.log(editable)
         one.put(editable);
         expect(one.get(1)).to.be.undefined;
     })
@@ -997,11 +994,8 @@ describe("put-get", function () {
         one.put([item2, item3]);
         let editable = one.getEdit(2);
         editable.items = [item3];
-        console.log(editable)
         one.put(editable);
         expect(one.get(1)).to.be.undefined;
-        console.log(one.get(2))
-        console.log(one.get(1))
     })
 
     it('puts first come first served', () => {
@@ -1041,6 +1035,23 @@ describe("put-get", function () {
         expect(one.get(1).val).to.equal('item2')
     })
 
+    it('builds multiple nested arrays correctly', () => {
+        let item1 = { uid: 1 }
+        let item2 = { uid: 2 }
+        let item3 = { uid: 3 }
+        let item4 = { uid: 4 }
+        let item5 = { uid: 5 }
+        let main = { uid: 'main', first: [item1, item2, item5], second: [item3, item4, item5] }
+        one.put(main);
+        expect(one.refTo('main').size()).to.equal(5);
+        expect(one.refTo('main').paths[1][0]).to.equal('first.0');
+        expect(one.refTo('main').paths[2][0]).to.equal('first.1');
+        expect(one.refTo('main').paths[3][0]).to.equal('second.0');
+        expect(one.refTo('main').paths[4][0]).to.equal('second.1');
+        expect(one.refTo('main').paths[5][0]).to.equal('first.2');
+        expect(one.refTo('main').paths[5][1]).to.equal('second.2');
+    })
+
     //     /* Not sure this should be the lib's responsiblity - it involves scanning ALL arrays
     //     in ALL entities in the cache */
     //     //it("evicts the uid property if existing inside an array", function(){
@@ -1078,20 +1089,6 @@ describe("put-get", function () {
     //         // One.evict(3);
     //     });
     // });
-
-    // //describe("regexp", function () {
-    // //    it("does some", function(){
-    // //        let testString =
-    // // "imageLeft:-77;imageTop:0;imageWidth:455;imageRotate:0,5;servingWidth:1027;textAlign:center;" +
-    // // "fontFamily:Raleway;fontSize:12px;left:0;right:0;top;15px;bottom:20px;mucky:none;stroumpf:bombom;morestuff:ya" +
-    // // "andso:again;etc:andsoon"; let cssName    = "etc"; let result; var i, len; let regexp = new RegExp(cssName +
-    // // ":(.*?)(;|$)"); let cssMap = {};  console.time("css"); for (i = 0; i < 10000; i++) { if(!cssMap[cssName]){
-    // // cssMap[cssName] = new RegExp(cssName + ":(.*?)(;|$)"); } result     = testString.match(cssMap[cssName])[1]; }
-    // // console.timeEnd("css");  console.time("loop"); for(var j = 0 ; j < 10000; j++){ let arr = testString.split(";");
-    // // len = arr.length; for (i = 0; i < len; i++) { let pair = arr[i]; let key  = cssName + ":"; if (pair.indexOf(key)
-    // // > -1) { pair = pair.replace(key, ""); result = pair; break; } } } console.timeEnd("loop");
-    // // console.log("result:", result); });  it("does someting ", function(){ let testString =
-    // // "imageLeft:-77;imageTop:0;imageWidth:455;imageRotate:0,5;servingWidth:1027;textAlign:center;" + "fontFamily:Raleway;fontSize:12px;left:0;right:0;top;15px;bottom:20px;mucky:none;stroumpf:bombom;morestuff:ya" + "andso:again;etc:andsoon"; let cssName = "servingWidth"; let result; //let regexp = new RegExp(cssName+ ":(.;*?)"); let regexp = new RegExp("(?=" + cssName + ":).+?(?=;|$)"); //let regexp = new RegExp("(?=" + cssName + ":)(.*?)"); console.log(regexp); result = testString.match(regexp)[0]; console.log(result); })  });
 
     //     it("removes all subsequent states when undo-ing and modifying a state", function () {
     //         "use strict";

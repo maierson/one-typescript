@@ -83,7 +83,6 @@ export function get(obj: any, path: any, defaultValue?: any): any {
  * @param prop
  */
 export const concatProp = (propChain, prop) => {
-    console.log("CONCAT PROP", propChain, prop)
     if (propChain === "") {
         propChain = prop;
     } else {

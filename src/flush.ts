@@ -20,12 +20,6 @@ declare let require: any;
  *  required to perform this call.
  */
 export const buildFlushMap = (flushArgs: IFlushArgs) => {
-    // console.log("\n\n\n\n\n")
-    // console.log("BUILD FLUSH MAP",
-    //     "\n  entity", flushArgs.entity,
-    //     "\n  parentUid:", flushArgs.parentUid)
-    // console.log("=====================================")
-
     if (hasUid(flushArgs.entity)) {
         buildEntityFlushMap(flushArgs);
     } else {
@@ -76,13 +70,10 @@ const ensureOnFlushMap = (flushArgs: IFlushArgs) => {
  * @param flushArgs
  */
 const cacheEntityRefs = (flushArgs: IFlushArgs) => {
-    // console.log("CACHE ENTITY REFS",
-    //     "\n  entity: ", flushArgs.entity)
 
     let parentEntity = flushArgs.entity;
 
     for (let prop in parentEntity) {
-        // console.log("PROP", prop, " parentEntity:", parentEntity)
         if (parentEntity.hasOwnProperty(prop)) {
 
             let refEntity = parentEntity[prop];
@@ -99,11 +90,6 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
                     flushArgs.refPath = prop;
                 }
             }
-
-            // console.log("CACHE ENTITY REFS",
-            //     "\n  refEntity:", refEntity, "/ entity:", flushArgs.entity,
-            //     "\n  parentUid:", flushArgs.parentUid,
-            //     "\n  refPath:", flushArgs.refPath)
 
             if (isArray(refEntity)) {
                 cacheArrRefs(flushArgs);
@@ -128,8 +114,6 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
 const cacheArrRefs = (flushArgs: IFlushArgs) => {
     let entity = flushArgs.entity;
 
-    // console.log("START ARRAY //////////////////")
-
     // keep track of where the array path starts
     // to return to it with every array item iterated below
     let arrayPath = flushArgs.refPath;
@@ -140,26 +124,12 @@ const cacheArrRefs = (flushArgs: IFlushArgs) => {
 
     (entity as Array<any>).forEach((next, index) => {
 
-        // always have as parent the closest uid entity        
-        // if (entity[config.uidName]) {
-        //     flushArgs.parentUid = entity[config.uidName];
-        // }
         flushArgs.entity = next;
         flushArgs.parentUid = arrayUid;
 
         if (flushArgs.refPath || arrayPath) {
             flushArgs.refPath = arrayPath + "." + index;
         }
-
-        // console.log("CACHE ARR REFS",
-        //     "\n  entity:", entity,
-        //     "\n  refPath:", flushArgs.refPath,
-        //     "\n  arrayPath:", arrayPath,
-        //     "\n  arrayEntity:", arrayUid,
-        //     "\n  parentUid:", flushArgs.parentUid,
-        //     "\n  next:", next,
-        //     "\n  isArray:", isArray(next),
-        //     "\n  isObject:", isObject(next))
 
         if (isArray(next)) {
             cacheArrRefs(flushArgs);
@@ -168,7 +138,6 @@ const cacheArrRefs = (flushArgs: IFlushArgs) => {
         }
     });
 
-    //  console.log("END ARRAY //////////////////")
     Object.freeze(entity);
 };
 
@@ -191,26 +160,15 @@ const cacheObjRefs = (flushArgs: IFlushArgs) => {
 };
 
 const cacheUidObjRefs = (flushArgs: IFlushArgs) => {
-
     // if the refEntity has an uid it means that we're at the end of the refPath 
     // and must assign all ref info into the entity's item
     let refItem = ensureItem(flushArgs);
     assignRefToParent(refItem, flushArgs);
 
-    let exists = isOnCache(flushArgs);
+    // not iterating inside it as it's the same as cached
+    if (isOnCache(flushArgs) === true) return;
 
-    if (exists === true) {
-        // not iterating inside it as it's the same as cached
-        return;
-    }
-    //flushArgs.parentUid = String(flushArgs.entity[config.uidName]);
-
-    // console.log("CACHE UID OBJ REFS",
-    //     "\n  entity:", flushArgs.entity,
-    //     "\n  parentUid:", flushArgs.parentUid,
-    //     "\n  refPath:", flushArgs.refPath)
-
-    // flushArgs.refPath = "";
+    // build the next one
     buildFlushMap(flushArgs);
 }
 

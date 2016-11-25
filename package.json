@@ -8,10 +8,12 @@
   },
   "scripts": {
     "test": "test",
+    "clean": "rimraf lib dist coverage",
     "build:js": "webpack --config webpack.config.js",
     "build:js:min": "webpack --config webpack.config.production.js",
     "build": "npm run build:js && npm run build:js:min",
-    "tt": "webpack --config webpack.st.config.js"
+    "tt": "webpack --config webpack.st.config.js",
+    "prepub": "npm run clean && npm run build"
   },
   "author": "Dan Maier",
   "license": "MIT",
@@ -31,6 +33,7 @@
     "mocha": "^3.1.2",
     "mocha-babel": "^3.0.3",
     "path": "^0.12.7",
+    "rimraf": "^2.5.4",
     "sinon": "git+https://github.com/sinonjs/sinon.git",
     "sinon-chai": "^2.8.0",
     "ts-loader": "^1.2.2",

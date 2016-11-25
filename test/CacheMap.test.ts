@@ -74,7 +74,7 @@ describe("CacheMap", () => {
     })
 
     it('does not enumerate length', () => {
-        console.log(flushMap.propertyIsEnumerable("_length"))
+        // console.log(flushMap.propertyIsEnumerable("_length"))
     })
 })
 

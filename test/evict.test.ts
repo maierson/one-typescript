@@ -260,9 +260,6 @@ describe("evict", function () {
         let items = one.get(2).items;
         expect(items.length).to.equal(2);
 
-
-        // console.log(one.refFrom(3)["2"])
-
         one.evict(3);
 
         expect(one.get("1a")).to.be.undefined;

@@ -136,40 +136,39 @@ export function deepClone(obj, uidReference?, freeze = true) {
     // shallow copy first
     let result = objectAssign({}, obj);
     for (let propName in obj) {
-       // if (obj.hasOwnProperty(propName)) {
-            let value = obj[propName];
-            if (value) {
-               if (isArray(value)) {
-                    result[propName] = deepCloneArray(value, uidReference, freeze);
-                } else if (isDate(value)) {
-                    let date = new Date(value.getTime());
-                    if (freeze === true) {
-                        Object.freeze(date);
-                    }
-                    result[propName] = date;
-                } else if (isObject(value)) {
-                    if (hasUid(value)) {
-                        result[propName] = value;
-                        if (uidReference && hasUid(uidReference)) {
-                            if (value !== uidReference
-                                && value.uid === uidReference.uid
-                                && value !== uidReference) {
-                                result[propName] = uidReference;
-                            }
-                        } else {
-                            // do nothing here - keep the uid reference - not editable
-                            //result[propName] = deepClone(value);
+        // if (obj.hasOwnProperty(propName)) {
+        let value = obj[propName];
+        if (value) {
+            if (isArray(value)) {
+                result[propName] = deepCloneArray(value, uidReference, freeze);
+            } else if (isDate(value)) {
+                let date = new Date(value.getTime());
+                if (freeze === true) {
+                    Object.freeze(date);
+                }
+                result[propName] = date;
+            } else if (isObject(value)) {
+                if (hasUid(value)) {
+                    result[propName] = value;
+                    if (uidReference && hasUid(uidReference)) {
+                        if (value !== uidReference
+                            && value.uid === uidReference.uid
+                            && value !== uidReference) {
+                            result[propName] = uidReference;
                         }
                     } else {
-                        result[propName] = deepClone(value, uidReference, freeze);
+                        // do nothing here - keep the uid reference - not editable
+                        //result[propName] = deepClone(value);
                     }
-               } else {
-                   // functions and primitives
-                    console.log(value)
-                    result[propName] = value;
+                } else {
+                    result[propName] = deepClone(value, uidReference, freeze);
                 }
+            } else {
+                // functions and primitives
+                result[propName] = value;
             }
-       // }
+        }
+        // }
     }
     if (freeze === true && !Object.isFrozen(result)) {
         Object.freeze(result);
