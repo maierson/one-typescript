@@ -49,6 +49,7 @@ const getObject = (uidOrEntity: string | number | {}, instance: ICacheInstance) 
  * Editable clone of the item requested.
  */
 export const getEditItem = (obj: string | number | {} | Array<any>, instance: ICacheInstance, nodeId?: number) => {
+    console.log("GET EDIT ITEM")
     if (isArray(obj)) {
         return (obj as Array<any>).map(item => {
             return getEditableObject(item, instance);
@@ -69,8 +70,6 @@ export const getEditItem = (obj: string | number | {} | Array<any>, instance: IC
 const getEditableObject = (uidOrEntity, instance: ICacheInstance) => {
     let realUid = getActualUid(uidOrEntity);
     let existing = getItem(realUid, instance);
-    let clone = deepClone(existing, undefined, false);
-    console.log(clone)
     return existing ? deepClone(existing, undefined, false) : undefined;
 };
 

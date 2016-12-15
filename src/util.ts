@@ -169,8 +169,6 @@ export function deepClone(obj, uidReference?, freeze = true) {
         return uidReference;
     }
 
-    console.log(obj)
-
     // shallow copy first
     let result = objectAssign({}, obj);
     for (let propName in obj) {
@@ -201,11 +199,13 @@ export function deepClone(obj, uidReference?, freeze = true) {
                     result[propName] = deepClone(value, uidReference, freeze);
                 }
             } else if (isFunction(value)) {
-                // result.prototype[propName] =  cloneFunction(result, value);
 
-                result[propName] = value.clone(result);
-
-                console.log(propName, result[propName])
+                // object is already constructed - no need to clone the constructor
+                // also cloning fails with 'unexpected token this' error for objects
+                // constructed from classes inheriting from other classes
+                if (propName !== 'constructor') {
+                    result[propName] = value.clone(result);
+                }
             } else {
                 // primitives
                 result[propName] = value;

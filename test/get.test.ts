@@ -366,6 +366,23 @@ describe("get", function () {
         expect(result.test).to.equal('test');
         console.log(result)
     })
+
+    it('should handle inheritance edit caching', () => {
+        class Base {
+            uid = One.uuid();
+        }
+
+        class Test extends Base {
+            value: string = '';
+        }
+
+        let test = new Test();
+        One.put(test);
+        let result = One.getEdit(test);
+        expect(result).to.not.be.undefined;
+        expect(result.uid).to.not.be.undefined;
+        expect(result.uid === test.uid).to.be.true;
+    })
 });
 
 
