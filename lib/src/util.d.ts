@@ -1,0 +1,14 @@
+import { ICacheInstance } from './CacheInstance';
+import { ICacheNode } from './CacheNode';
+export declare function isNumber(value: any): boolean;
+export declare function isString(obj: any): boolean;
+export declare function isObject(mixed_var: any): boolean;
+export declare function isFunction(item: any): boolean;
+export declare function isArray(value: any): boolean;
+export declare function isDate(value: any): boolean;
+export declare function isEmpty(value: any): boolean;
+export declare function getNewCacheNode(instance: ICacheInstance): ICacheNode;
+export declare function hasUid(obj: any): boolean;
+export declare function deepClone(obj: any, uidReference?: any, freeze?: boolean): any;
+export declare const cacheSize: (instance: ICacheInstance) => number;
+export declare const cacheLength: (instance: ICacheInstance) => number;
