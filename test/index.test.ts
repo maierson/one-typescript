@@ -48,6 +48,16 @@ describe("setup", function () {
         expect(One.get(1)).to.be.undefined;
         expect(One.get(2)).to.be.undefined;
     })
+
+    it('should generate uuid', () => {
+        let uuid1 = One.uuid();
+        let uuid2 = One.uuid();
+        expect(uuid1).to.not.be.undefined;
+        expect(typeof uuid1 === 'string').to.be.true;
+        expect(uuid1.length > 5).to.be.true;
+        expect(uuid2).to.not.be.undefined;
+        expect(uuid1 === uuid2).to.be.false;
+    })
 });
 
 

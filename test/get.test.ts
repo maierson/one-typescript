@@ -347,17 +347,24 @@ describe("get", function () {
         console.log(result.list)
     })
 
-    it('should clone function ', () => {
+    it('should clone object with constructor', () => {
+        function makeUid() {
+            return 15;
+        }
         class Test {
-            uid: number = 1;
-            list: Array<String> = [];
-
-            addItems = (items: Array<string>) => {
-                this.list = this.list.concat(items);
+            uid: number;
+            test: string;
+            constructor() {
+                this.test = "test";
+                this.uid = makeUid();
             }
         }
-
-
+        let test = new Test();
+        one.put(test);
+        let result = one.getEdit(15);
+        expect(result).to.not.be.undefined;
+        expect(result.test).to.equal('test');
+        console.log(result)
     })
 });
 

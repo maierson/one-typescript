@@ -1,14 +1,14 @@
 //import 'babel-polyfill';
-import { getCache, put, get, getEdit, evict, reset, print } from './cache';
+import { getCache, put, get, getEdit, evict, reset, uuid, print } from './cache';
 
 (function () {
     if (window) {
         (window as any).One = {
-            getCache, put, get, getEdit, evict, reset, print
+            getCache, put, get, getEdit, evict, reset, uuid, print
         };
     }
 })();
 
 export {
-    getCache, put, get, getEdit, evict, reset, print
+    getCache, put, get, getEdit, evict, reset, uuid, print
 }
