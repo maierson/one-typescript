@@ -8,7 +8,7 @@ import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
 
-describe("Utils", function () {
+describe.skip("Utils", function () {
 
     "use strict";
 

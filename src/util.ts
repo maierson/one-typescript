@@ -31,6 +31,10 @@ export function isObject(mixed_var) {
     return mixed_var !== null && typeof mixed_var === 'object';
 }
 
+export function isFunction(item) {
+    return typeof item === 'function';
+}
+
 /**
  * checks if argument is an array
  */
@@ -111,6 +115,31 @@ export function hasUid(obj) {
     return uid.length !== 0;
 };
 
+(Function.prototype as any).clone = function (target) {
+
+    var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+    var ARGUMENT_NAMES = /([^\s,]+)/g;
+    function getParamNames(func) {
+        var fnStr = func.toString().replace(STRIP_COMMENTS, '');
+        var result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+        if (result === null)
+            result = [];
+        return result;
+    }
+
+    // get string representation of function body        
+    let stringify = this.toString();
+    stringify = stringify.replace(new RegExp('_this', 'g'), 'this');)
+    let body = stringify.match(/function[^{]+\{([\s\S]*)\}$/)[1];
+
+    // get array of argument names
+    let paramNames = getParamNames(this);
+
+    // create new function and bind it to target.        
+    let func = new Function(paramNames, body);
+    return func.bind(target);
+};
+
 /**
  *
  * @param {Object} obj object to be cloned
@@ -120,23 +149,31 @@ export function hasUid(obj) {
  * @returns {*}
  */
 export function deepClone(obj, uidReference?, freeze = true) {
-    if (!obj || (!isObject(obj) && !isArray(obj))) {
+
+    if (!obj
+        || (!isObject(obj)
+            && !isArray(obj))) {
         return obj;
     }
 
-    if (freeze === true && uidReference && !Object.isFrozen(uidReference)) {
+    if (freeze === true
+        && uidReference
+        && !Object.isFrozen(uidReference)) {
         Object.freeze(uidReference);
     }
 
     // the uid reference is already cloned here - safe to return
-    if (uidReference && hasUid(obj) && obj[config.uidName] === uidReference[config.uidName]) {
+    if (uidReference
+        && hasUid(obj)
+        && obj[config.uidName] === uidReference[config.uidName]) {
         return uidReference;
     }
+
+    console.log(obj)
 
     // shallow copy first
     let result = objectAssign({}, obj);
     for (let propName in obj) {
-        // if (obj.hasOwnProperty(propName)) {
         let value = obj[propName];
         if (value) {
             if (isArray(value)) {
@@ -163,14 +200,22 @@ export function deepClone(obj, uidReference?, freeze = true) {
                 } else {
                     result[propName] = deepClone(value, uidReference, freeze);
                 }
+            } else if (isFunction(value)) {
+                // result.prototype[propName] =  cloneFunction(result, value);
+
+                result[propName] = value.clone(result);
+
+                console.log(propName, result[propName])
             } else {
-                // functions and primitives
+                // primitives
                 result[propName] = value;
             }
         }
-        // }
     }
-    if (freeze === true && !Object.isFrozen(result)) {
+
+    if (freeze === true
+        && !Object.isFrozen(result)
+        && typeof result !== 'function') {
         Object.freeze(result);
     }
     return result;

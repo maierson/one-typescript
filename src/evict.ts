@@ -6,7 +6,7 @@ import CacheMap from './CacheMap';
 import CacheItem from './CacheItem';
 import * as opath from './path';
 import { getItemFlushOrCached, buildFlushMap, flush } from './flush';
-import { IFlushArgs } from './interfaces';
+import { IFlushArgs, ICacheStats } from './interfaces';
 import { getCallStats } from './locate';
 import { updatePointers, updateRefFroms } from './ref';
 declare let require: any;

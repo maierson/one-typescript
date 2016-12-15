@@ -21,29 +21,7 @@ export function setTesting(testing: boolean) {
     cacheTest = testing;
 }
 
-/**
- * Creates and returns a single static instance of the cache
- * unique for the respective instance name.
- */
-export function getCache(instanceName = "one", configuration: {} = defaultConfig): ICache {
-    if (!config && !instances) {
-        config = configure(configuration);
-    }
-    if (!instances) {
-        instances = {};
-    }
-    if (!instances[instanceName]) {
-        instances[instanceName] = createCache(instanceName);
-    }
-    if (window) {
-        if (window[instanceName] === undefined) {
-            window[instanceName] = instances[instanceName];
-        }
-    }
-    return instances[instanceName];
-}
-
-interface ICache {
+export interface ICache {
     /* add item to the cache recursively and freeze deeply */
     put: Function,
 
@@ -69,6 +47,48 @@ interface ICache {
 
     /* put it on paper so I can look at it */
     print: Function,
+}
+
+/**
+ * Creates and returns a single static instance of the cache
+ * unique for the respective instance name.
+ */
+export function getCache(instanceName = "one", configuration: {} = defaultConfig): ICache {
+    if (!config && !instances) {
+        config = configure(configuration);
+    }
+    if (!instances) {
+        instances = {};
+    }
+    if (!instances[instanceName]) {
+        instances[instanceName] = createCache(instanceName);
+    }
+    if (window) {
+        if (window[instanceName] === undefined) {
+            window[instanceName] = instances[instanceName];
+        }
+    }
+    return instances[instanceName];
+}
+
+export const put = (item: {} | Array<{}>) {
+    getCache().put(item);
+}
+
+export const get = (entity: string | number | {} | Array<any>, nodeId?: number) => {
+    return getCache().get(entity, nodeId);
+}
+
+export const getEdit = (uidOrEntityOrArray: string | number | {} | Array<any>, nodeId?: number) => {
+    return getCache().getEdit(uidOrEntityOrArray, nodeId);
+}
+
+export const evict = (uidOrEntityOrArray: string | number | {} | Array<any>): ICacheStats => {
+    return getCache().evict(uidOrEntityOrArray);
+}
+
+export const print = (): string => {
+    return getCache().print();
 }
 
 function createCache(name: string): ICache {

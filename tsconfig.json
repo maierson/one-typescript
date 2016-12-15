@@ -1,11 +1,13 @@
 {
+    "version": "0.0.6",
     "compilerOptions": {
         "baseUrl": ".",
         "rootDir": "./",
-        "outDir": "./war",
+        "outDir": "./lib",
         "sourceMap": false,
-        "inlineSourceMap": true,
+        "inlineSourceMap": false,
         "module": "commonjs",
+        "declaration": true,
         "moduleResolution": "node",
         "target": "es5",
         "noImplicitAny": false,
@@ -25,8 +27,7 @@
         "src/**/*"
     ],
     "files": [
-        // need this for promise definitions etc.
-        // "node_modules/typescript/lib/lib.es6.d.ts"
+        "./src/index.ts"
     ],
     "buildOnSave": true,
     "compileOnSave": false

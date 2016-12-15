@@ -270,6 +270,95 @@ describe("get", function () {
         expect(result.uid).to.equal(1);
         expect(result.func()).to.equal(1);
     })
+
+    it('should keep array editable on getEdit', () => {
+        let item = {
+            uid: 1,
+            children: [
+                "test", "more"
+            ]
+        }
+        one.put(item);
+        let result = one.getEdit(1);
+        result.children = result.children.concat(['other']);
+        expect(result.children.length).to.equal(3);
+        expect(result.children[0]).to.equal('test');
+        expect(result.children[1]).to.equal('more');
+        expect(result.children[2]).to.equal('other');
+    })
+
+    it.only('should keep function on object', () => {
+        class Test {
+            uid: number = 1;
+            list: Array<String> = [];
+
+            addItems = (items: Array<string>) => {
+                this.list = this.list.concat(items);
+            }
+
+            test = () => {
+                return "aha";
+            }
+        }
+        let test = new Test();
+        one.put(test);
+        let result = one.get(1)
+        expect(typeof result.addItems === 'function').to.be.true;
+        expect(Object.isFrozen(result.list)).to.be.true;
+        expect(Object.isFrozen(result.getItems)).to.be.true;
+        let editResult = one.getEdit(1);
+        expect(typeof editResult.addItems === 'function').to.be.true;
+        expect(Object.isFrozen(editResult.list)).to.be.false;
+        expect(Object.isFrozen(editResult.addItems)).to.be.false;
+        expect(editResult.test()).to.equal('aha');
+        // new function
+        expect(editResult.test === test.test).to.be.false;
+    })
+
+    it('should keep object array editable on getEdit', () => {
+
+
+
+        class Test {
+            uid: number = 1;
+            list: Array<String> = [];
+
+            addItems = (items: Array<string>) => {
+                this.list = this.list.concat(items);
+            }
+        }
+
+        let test = new Test();
+        expect(test.list.length).to.equal(0);
+        test.addItems(['value']);
+        expect(test.list.length).to.equal(1);
+        expect(Object.isFrozen(test.list)).to.be.false;
+        one.put(test);
+        let result = one.getEdit(1);
+        expect(result).to.not.be.undefined;
+        expect(Object.isFrozen(result.list)).to.be.false;
+        expect(typeof result.addItems === 'function').to.be.true;
+        let listDescriptor = Object.getOwnPropertyDescriptor(result, 'list');
+        expect(listDescriptor.writable).to.be.true;
+        expect(Object.isFrozen(result.addItems)).to.be.false;
+        //result.list = result.list.concat(['test'])
+        result.addItems(['test'])
+        expect(result.list.length).to.equal(2)
+        console.log(result.list)
+    })
+
+    it('should clone function ', () => {
+        class Test {
+            uid: number = 1;
+            list: Array<String> = [];
+
+            addItems = (items: Array<string>) => {
+                this.list = this.list.concat(items);
+            }
+        }
+
+
+    })
 });
 
 

@@ -1,8 +1,12 @@
 {
-  "name": "one",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "one-typescript",
+  "version": "0.0.6",
+  "description": "Porting of One package to typescript",
+  "main": "lib/index.js",
+  "typings": "lib/index",
+  "files": [
+    "lib/"
+  ],
   "directories": {
     "test": "test"
   },
@@ -11,7 +15,8 @@
     "clean": "rimraf lib dist coverage",
     "build:js": "webpack --config webpack.config.js",
     "build:js:min": "webpack --config webpack.config.production.js",
-    "build": "npm run build:js && npm run build:js:min",
+    "build:lib": "tsc --rootDir src --outDir lib",
+    "build": "npm run build:lib && npm run build:js && npm run build:js:min",
     "tt": "webpack --config webpack.st.config.js",
     "prepub": "npm run clean && npm run build"
   },
@@ -37,7 +42,7 @@
     "sinon": "git+https://github.com/sinonjs/sinon.git",
     "sinon-chai": "^2.8.0",
     "ts-loader": "^1.2.2",
-    "typescript": "^2.0.10",
+    "typescript": "^2.1.1",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.8.2",
     "webpack-dev-server": "^1.16.1"

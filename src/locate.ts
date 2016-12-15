@@ -2,6 +2,7 @@ import { ICacheInstance } from './CacheInstance';
 import { instances } from './cache';
 import { isNumber, cacheLength } from './util';
 import { ICacheStats } from './interfaces';
+import { ICacheNode } from './CacheNode'
 
 /**
   * Gets the state of the cache.

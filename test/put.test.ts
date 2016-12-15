@@ -10,7 +10,7 @@ import CacheMap from '../src/CacheMap';
 import { getCachedItem } from '../src/get';
 import CacheItem from '../src/CacheItem';
 
-describe("put-get", function () {
+describe.skip("put-get", function () {
 
     "use strict";
 

@@ -13,7 +13,7 @@ import CacheInstance from '../src/CacheInstance';
 import { CacheNode, ICacheNode } from '../src/CacheNode';
 import { node } from '../src/locate';
 
-describe("evict", function () {
+describe.skip("evict", function () {
 
     "use strict";
     setTesting(true);
