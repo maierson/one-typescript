@@ -287,7 +287,7 @@ describe("get", function () {
         expect(result.children[2]).to.equal('other');
     })
 
-    it.only('should keep function on object', () => {
+    it('should keep function on object', () => {
         class Test {
             uid: number = 1;
             list: Array<String> = [];

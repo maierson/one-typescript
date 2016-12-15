@@ -129,7 +129,7 @@ export function hasUid(obj) {
 
     // get string representation of function body        
     let stringify = this.toString();
-    stringify = stringify.replace(new RegExp('_this', 'g'), 'this');)
+    stringify = stringify.replace(new RegExp('_this', 'g'), 'this');
     let body = stringify.match(/function[^{]+\{([\s\S]*)\}$/)[1];
 
     // get array of argument names

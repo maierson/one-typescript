@@ -8,7 +8,7 @@ import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
 
-describe.skip("setup", function () {
+describe("setup", function () {
 
     let one;
     setTesting(false);

@@ -8,7 +8,7 @@ import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
 
-describe.skip("Utils", function () {
+describe("Utils", function () {
 
     "use strict";
 
@@ -217,38 +217,6 @@ describe.skip("Utils", function () {
             }).to.not.throw(Error);
         })
     });
-
-    // describe("deep-freeze", function () {
-    //     it('should freeze an object deeply', function () {
-    //         let obj: any = getTestObj();
-    //         deepFreeze(obj);
-
-    //         expect(() => {
-    //             obj.x = 5
-    //         }).to.throw(TypeError);
-    //         expect(() => {
-    //             obj.prototype.z = 5
-    //         }).to.throw(TypeError);
-    //     });
-
-    //     it("should not blow up on null object", function () {
-    //         expect(deepFreeze()).to.be.undefined;
-    //     })
-    // });
-
-    // describe("dirty", function () {
-    //     it("reads non uid item as dirty", function () {
-    //         expect(One.isDirty({})).to.be.true;
-    //         expect(One.isDirty({}, 1)).to.be.true;
-    //     })
-
-    // })
-
-    // describe("uid", function () {
-    //     it("creates uid", function () {
-    //         expect(one.uuid()).to.not.be.undefined;
-    //     })
-    // })
 });
 
 

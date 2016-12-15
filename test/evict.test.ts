@@ -13,7 +13,7 @@ import CacheInstance from '../src/CacheInstance';
 import { CacheNode, ICacheNode } from '../src/CacheNode';
 import { node } from '../src/locate';
 
-describe.skip("evict", function () {
+describe("evict", function () {
 
     "use strict";
     setTesting(true);
@@ -24,6 +24,7 @@ describe.skip("evict", function () {
     }
 
     beforeEach(function () {
+        setTesting(true);
         // reset config before each call
         one = One.getCache();
     });

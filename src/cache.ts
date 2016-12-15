@@ -71,7 +71,7 @@ export function getCache(instanceName = "one", configuration: {} = defaultConfig
     return instances[instanceName];
 }
 
-export const put = (item: {} | Array<{}>) {
+export const put = (item: {} | Array<{}>) => {
     getCache().put(item);
 }
 
@@ -89,6 +89,10 @@ export const evict = (uidOrEntityOrArray: string | number | {} | Array<any>): IC
 
 export const print = (): string => {
     return getCache().print();
+}
+
+export const reset = (): void => {
+    getCache().reset();
 }
 
 function createCache(name: string): ICache {
@@ -138,16 +142,6 @@ function createCache(name: string): ICache {
         return printCache(instance);
     }
 
-    const refFrom = uid => {
-        let item = getCachedItem(uid, instance);
-        return item.mapFrom;
-    };
-
-    const refTo = uid => {
-        let item = getCachedItem(uid, instance);
-        return item.mapTo;
-    };
-
     let result = {
         put: put,
         get: get,
@@ -157,15 +151,17 @@ function createCache(name: string): ICache {
         size: size,
         length: length,
         print: print,
-
-        // testing only
-        refTo: refTo,
-        refFrom: refFrom
     }
 
-    if (cacheTest === false) {
-        delete result.refTo;
-        delete result.refFrom;
+    if (cacheTest === true) {
+        (result as any).refTo = uid => {
+            let item = getCachedItem(uid, instance);
+            return item.mapTo;
+        };
+        (result as any).refFrom = uid => {
+            let item = getCachedItem(uid, instance);
+            return item.mapFrom;
+        };
     }
 
     return result;

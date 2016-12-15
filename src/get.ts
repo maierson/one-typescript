@@ -69,6 +69,8 @@ export const getEditItem = (obj: string | number | {} | Array<any>, instance: IC
 const getEditableObject = (uidOrEntity, instance: ICacheInstance) => {
     let realUid = getActualUid(uidOrEntity);
     let existing = getItem(realUid, instance);
+    let clone = deepClone(existing, undefined, false);
+    console.log(clone)
     return existing ? deepClone(existing, undefined, false) : undefined;
 };
 
