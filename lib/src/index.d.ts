@@ -1,2 +1,2 @@
-import { getCache, put, get, getEdit, evict, reset, print } from './cache';
-export { getCache, put, get, getEdit, evict, reset, print };
+import { getCache, put, get, getEdit, evict, reset, uuid, print } from './cache';
+export { getCache, put, get, getEdit, evict, reset, uuid, print };

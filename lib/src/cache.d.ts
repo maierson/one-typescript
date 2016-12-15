@@ -19,3 +19,4 @@ export declare const getEdit: (uidOrEntityOrArray: string | number | any[] | {},
 export declare const evict: (uidOrEntityOrArray: string | number | any[] | {}) => ICacheStats;
 export declare const print: () => string;
 export declare const reset: () => void;
+export declare const uuid: () => string;
