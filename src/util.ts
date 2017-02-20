@@ -131,13 +131,21 @@ export function hasUid(obj) {
     let stringify = this.toString();
     stringify = stringify.replace(new RegExp('_this', 'g'), 'this');
     let body = stringify.match(/function[^{]+\{([\s\S]*)\}$/)[1];
+    body = body.trim();
 
     // get array of argument names
     let paramNames = getParamNames(this);
 
     // create new function and bind it to target.        
-    let func = new Function(paramNames, body);
-    return func.bind(target);
+    //let func = new Function(paramNames, body);
+    // console.warn('One-typescript function.clone ', paramNames, body);
+    let func;
+    // TODO fix this one to clone any function
+    if (body.indexOf('native code') < 0) {
+        func = Function(paramNames, body);
+        func = func.bind(target);
+    }
+    return func;
 };
 
 /**
@@ -198,15 +206,16 @@ export function deepClone(obj, uidReference?, freeze = true) {
                 } else {
                     result[propName] = deepClone(value, uidReference, freeze);
                 }
-            } else if (isFunction(value)) {
-
+            }
+            else if (isFunction(value)) {
                 // object is already constructed - no need to clone the constructor
                 // also cloning fails with 'unexpected token this' error for objects
                 // constructed from classes inheriting from other classes
                 if (propName !== 'constructor') {
                     result[propName] = value.clone(result);
                 }
-            } else {
+            }
+            else {
                 // primitives
                 result[propName] = value;
             }

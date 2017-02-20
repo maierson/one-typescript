@@ -317,13 +317,12 @@ describe("get", function () {
 
     it('should keep object array editable on getEdit', () => {
 
-
-
         class Test {
             uid: number = 1;
             list: Array<String> = [];
 
             addItems = (items: Array<string>) => {
+                console.log(this)
                 this.list = this.list.concat(items);
             }
         }
@@ -344,7 +343,36 @@ describe("get", function () {
         //result.list = result.list.concat(['test'])
         result.addItems(['test'])
         expect(result.list.length).to.equal(2)
-        console.log(result.list)
+    })
+
+    it('should clone function with multiple arguments', () => {
+        class Test {
+            uid: number = 1;
+            list: Array<String> = [];
+
+            addItems = (items: Array<string>, recursive: boolean) => {
+                if (recursive) {
+                    this.list = this.list.concat(items);
+                }
+            }
+        }
+
+        let test = new Test();
+        expect(test.list.length).to.equal(0);
+        test.addItems(['value'], true);
+        expect(test.list.length).to.equal(1);
+        expect(Object.isFrozen(test.list)).to.be.false;
+        one.put(test);
+        let result = one.getEdit(1);
+        expect(result).to.not.be.undefined;
+        expect(Object.isFrozen(result.list)).to.be.false;
+        expect(typeof result.addItems === 'function').to.be.true;
+        let listDescriptor = Object.getOwnPropertyDescriptor(result, 'list');
+        expect(listDescriptor.writable).to.be.true;
+        expect(Object.isFrozen(result.addItems)).to.be.false;
+        //result.list = result.list.concat(['test'])
+        result.addItems(['test'], true)
+        expect(result.list.length).to.equal(2)
     })
 
     it('should clone object with constructor', () => {

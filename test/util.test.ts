@@ -40,13 +40,13 @@ describe("Utils", function () {
         };
     }
 
-    it('finds not array if missing splice', () => {
+    it('should not find isArray if missing splice', () => {
         let obj: any = {};
         obj["length"] = 0;
         expect(isArray(obj)).to.be.false;
     })
 
-    it('finds not array if length is enumerable', () => {
+    it('should not find array if length is enumerable', () => {
         let obj: any = {};
         obj["length"] = 0;
         obj["splice"] = () => { };

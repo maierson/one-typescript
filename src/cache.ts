@@ -13,7 +13,7 @@ import { evictItem } from './evict';
 /**
  * All current instances of the cache.
  */
-export let instances;
+export const instances = {};
 export let config;
 let cacheTest: boolean = false;
 
@@ -54,12 +54,12 @@ export interface ICache {
  * unique for the respective instance name.
  */
 export function getCache(instanceName = "one", configuration: {} = defaultConfig): ICache {
-    if (!config && !instances) {
+    if (!config /*&& !instances*/) {
         config = configure(configuration);
     }
-    if (!instances) {
-        instances = {};
-    }
+    // if (!instances) {
+    //     instances = {};
+    // }
     if (!instances[instanceName]) {
         instances[instanceName] = createCache(instanceName);
     }
