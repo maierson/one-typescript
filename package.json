@@ -25,6 +25,7 @@
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/mocha": "^2.2.33",
+    "@types/node": "^7.0.5",
     "@types/sinon": "^1.16.32",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
@@ -42,9 +43,10 @@
     "sinon": "git+https://github.com/sinonjs/sinon.git",
     "sinon-chai": "^2.8.0",
     "ts-loader": "^1.2.2",
-    "typescript": "^2.1.1",
+    "typescript": "^2.1.6",
     "webpack": "^1.13.2",
     "webpack-dev-middleware": "^1.8.2",
     "webpack-dev-server": "^1.16.1"
-  }
+  },
+  "dependencies": {}
 }

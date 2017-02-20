@@ -18,10 +18,10 @@ module.exports = function (wallaby) {
             type: 'node'
         },
 
-        // workers: {
-        //     initial: 0,
-        //     regular: 1
-        // },
+        workers: {
+            initial: 1,
+            regular: 1
+        },
 
         debug: true,
 
