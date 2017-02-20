@@ -64,7 +64,7 @@ const ensureOnFlushMap = (flushArgs: IFlushArgs) => {
 
 /**
  * Caches the refs that might be contained in a javascript object
- * that optionally has a uid property. Loops through each property
+ * which optionally has a uid property. Loops through each property
  * to find the cacheable ones.
  *
  * @param flushArgs
@@ -78,7 +78,7 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
 
             let refEntity = parentEntity[prop];
 
-            if (isObject(refEntity) || isArray(refEntity)) {
+            if (isObject(refEntity) || (isArray(refEntity) && refEntity.length > 0)) {
                 flushArgs.entity = refEntity;
                 if (parentEntity[config.uidName]) {
                     flushArgs.parentUid = parentEntity[config.uidName];
@@ -91,7 +91,7 @@ const cacheEntityRefs = (flushArgs: IFlushArgs) => {
                 }
             }
 
-            if (isArray(refEntity)) {
+            if (isArray(refEntity) && refEntity.length > 0) {
                 cacheArrRefs(flushArgs);
             } else if (isObject(refEntity)) {
                 // must do this even if item exists not dirty for refernce counting
@@ -163,6 +163,7 @@ const cacheUidObjRefs = (flushArgs: IFlushArgs) => {
     // if the refEntity has an uid it means that we're at the end of the refPath 
     // and must assign all ref info into the entity's item
     let refItem = ensureItem(flushArgs);
+
     assignRefToParent(refItem, flushArgs);
 
     // not iterating inside it as it's the same as cached
