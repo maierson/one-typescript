@@ -18,6 +18,7 @@ describe("put-get", function () {
     setTesting(true);
 
     beforeEach(function () {
+        setTesting(true);
         // reset config before each call
         one = One.getCache();
     });
@@ -655,25 +656,6 @@ describe("put-get", function () {
         expect(one.length()).to.equal(1);
     });
 
-    // it("freezes previous versions of the nodes", function () {
-    //     let item1 = {
-    //         uid: 1,
-    //         children: [
-    //             { uid: 2 }
-    //         ]
-    //     };
-    //     one.put(item1);
-    //     let result = one.getCurrentNode();
-    //     expect(result).to.not.be.undefined;
-    //     expect(one.size()).to.equal(2);
-    //     try {
-    //         result.items.delete(1);
-    //     } catch (err) {
-    //         console.log("ERROR remove from cache:" + err.message);
-    //     }
-    //     expect(one.size()).to.equal(2);
-    // });
-
     it("does not alter the original when putting new", function () {
         let item2 = { uid: 2 };
         let item3 = { uid: 3 };
@@ -1068,12 +1050,6 @@ describe("put-get", function () {
     //     //    result = One.getCache().get(2);
     //     //    expect(result.uids.length).to.equal(0);
     //     //});
-
-
-
-
-
-
 
     // describe("cycles", function () {
     //     // TODO
