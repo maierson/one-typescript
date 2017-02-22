@@ -137,7 +137,7 @@ export function hasUid(obj) {
     let paramNames = getParamNames(this);
 
     // create new function and bind it to target.        
-    //let func = new Function(paramNames, body);
+    // let func = new Function(paramNames, body);
     // console.warn('One-typescript function.clone ', paramNames, body);
     let func;
     // TODO fix this one to clone any function
