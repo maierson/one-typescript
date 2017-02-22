@@ -9,13 +9,13 @@ import { IFlushArgs } from './interfaces';
 import { getCachedItem } from './cacheUtil';
 
 /**
- * Gets a frozen item out of the cache if existing. This item is for display purposes only (not editable) and is
- * the actual object stored in the cache (not a clone). This is so that we can perform an actual fast identity op
- * when checking for isDirty()
+ * Gets a frozen item out of the cache if existing. This item is for
+ * display purposes only (not editable) and is the actual object stored
+ * in the cache (not a clone). This to perform an actual fast identity check.
  *
- * @param uidOrEntityOrArray the item(s) to be retrieved
- * @param instance the instance to operate on
- * @param nodeId optional node to get the items from (ie time travel)
+ * @param entity the item(s) to be retrieved
+ * @param instance the cache instance to operate on
+ * @param nodeId optional node to retrieve the items from (ie time travel)
  */
 export const getItem = (entity: string | number | {} | Array<any>, instance: ICacheInstance, nodeId?: number) => {
     if (!entity) {
@@ -50,7 +50,6 @@ const getObject = (uidOrEntity: string | number | {}, instance: ICacheInstance) 
  * Editable clone of the item requested.
  */
 export const getEditItem = (obj: string | number | {} | Array<any>, instance: ICacheInstance, nodeId?: number) => {
-    console.log("GET EDIT ITEM")
     if (isArray(obj)) {
         return (obj as Array<any>).map(item => {
             return getEditableObject(item, instance);
@@ -62,9 +61,11 @@ export const getEditItem = (obj: string | number | {} | Array<any>, instance: IC
 }
 
 /**
- * Gets a shallow copy of the object maintaining all the deep uid references intact (keep identity) so that ui
- * children do not get refreshed needlessly when changing a property on the parent. Note that the children will
- * be frozen so if needing to change a child must get it as editable separately.
+ * Gets a shallow copy of the object maintaining all the deep uid references
+ * intact (keep identity) so that ui children do not get refreshed needlessly
+ * when changing a property on the parent. Note that the children will be frozen
+ * so if needing to change a child must get it as editable separately.
+ *
  * @param uidOrEntity
  * @returns {*}
  */
@@ -75,7 +76,8 @@ const getEditableObject = (uidOrEntity, instance: ICacheInstance) => {
 };
 
 /**
-  * Extracts the uid from a parameter that can be either the uid directly or an entity with a uid prop,
+  * Extracts the uid from a parameter that can be either the uid directly
+  * or an entity with a uid prop,
   * @param uidOrEntity
   * @returns {*}
   */

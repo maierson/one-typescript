@@ -6,6 +6,7 @@ import { ICacheNode } from './CacheNode'
 
 /**
   * Gets the state of the cache.
+  *
   * @param success The outcome of a cache operation
   * @param threadId optional thread id to request the
   *             cache history state for a specific thread
@@ -28,8 +29,8 @@ export const getCallStats = (success: boolean, instance: ICacheInstance): ICache
  * for existence.
  *
  * @param nodeId the id of the node to navigate to if applicable
- * @returns {*} for node() - the id of the node if existing or -1 if cache is empty, for node(id) the current
- *     history state
+ * @returns {*} for node() - the id of the node if existing or -1 if cache is empty,
+ *     for node(id) the current history state
  */
 export const node = (instance: ICacheInstance, nodeId?): number | ICacheStats => {
     // guard for 0 values
@@ -62,6 +63,14 @@ export function getCurrentNode(instance: ICacheInstance) {
     return currentNodeId >= 0 ? getRepoNode(currentNodeId, instance) : undefined;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {any} cacheNodeId 
+ * @param {ICacheInstance} instance 
+ * @returns 
+ */
 export function getRepoNode(cacheNodeId, instance: ICacheInstance) {
     return instance.repo.get(cacheNodeId);
 }
@@ -75,8 +84,8 @@ const length = (instance: ICacheInstance) => {
 };
 
 /**
- * Performs a binary search on the array argument O(log(n)). Use to search for item in the main stack which is
- * sorted.
+ * Performs a binary search on the array argument O(log(n)).
+ * Use to search for item in the main stack which is sorted.
  *
  * @param {[]} array The sorted array to search on.
  * @param {*} searchElement The item to search for within the array.

@@ -322,7 +322,6 @@ describe("get", function () {
             list: Array<String> = [];
 
             addItems = (items: Array<string>) => {
-                console.log(this)
                 this.list = this.list.concat(items);
             }
         }
@@ -392,7 +391,6 @@ describe("get", function () {
         let result = one.getEdit(15);
         expect(result).to.not.be.undefined;
         expect(result.test).to.equal('test');
-        console.log(result)
     })
 
     it('should handle inheritance edit caching', () => {

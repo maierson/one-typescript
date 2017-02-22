@@ -1,8 +1,8 @@
 import { ICacheNode } from './CacheNode';
 import CacheMap from './CacheMap';
 export interface ICacheRepo {
-    get: (nodeId: number) => ICacheNode;
     length: number;
+    get: (nodeId: number) => ICacheNode;
     add: (node: ICacheNode) => boolean;
     delete: (nodeId: number) => void;
 }

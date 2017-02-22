@@ -1,7 +1,11 @@
+
 /**
  * Linear collection of nodes. Contains all the information
  * required to sequentially keep track of cache nodes. Use the
  * node id to locate the actual node in the repo.
+ * 
+ * @export
+ * @interface ICacheThread
  */
 export interface ICacheThread {
     /** index of node currently showing (selected)

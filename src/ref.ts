@@ -83,35 +83,22 @@ export const updatePointers = (flushArgs: IFlushArgs) => {
 
 export const updateRefFroms = (item: CacheItem, flushArgs: IFlushArgs) => {
     if (item.mapFrom.length > 0) {
-
-        console.log(JSON.stringify(item.mapFrom, null, 2), item.entity)
-
         item.mapFrom.forEach((parentUid, paths) => {
-            console.log(parentUid, paths)
             let parentItem = flushArgs.flushMap.get(parentUid);
 
             if (!parentItem) {
                 parentItem = getCachedItem(parentUid, flushArgs.instance);
             }
 
-            // console.log(JSON.stringify(flushArgs.flushMap, null, 2))
-
             /* only update if dirty - no need to iterate all paths - just check the first one
             - if dirty then the parent entity needs to be cloned and updated anyways so pass in
             the ref entity when cloning - it will be updated wherever it is encountered during cloning */
             if (parentItem && paths.length > 0) {
                 let firstPath = paths[0];
-
                 let targetRef = opath.get(parentItem.entity, firstPath);
 
-
-                let dirty = (targetRef && targetRef !== item.entity);
-
-
-
-
-
-                if (dirty === true) {
+                // dirty ?                
+                if (targetRef && targetRef !== item.entity) {
                     let args: IFlushArgs = {
                         flushMap: flushArgs.flushMap,
                         instance: flushArgs.instance
@@ -186,7 +173,6 @@ const removeRefFrom_Value = (parentUid, refUid, flushArgs: IFlushArgs, path: str
         // make a new instance (pure function)
         refItem = refItem.clone();// objectAssign({}, refItem);
 
-        //cloneRef(refItem, mapFrom);
         // remove the path from the refFrom
         if (refItem.mapFrom.has(parentUid)) {
             // get the array of refs
@@ -215,8 +201,5 @@ const removeRefFrom = (item, parentUid, path) => {
     item.mapFrom.set(parentUid, refsArray);
     if (refsArray.length == 0) {
         item.mapFrom.delete(parentUid);
-        // item.mapFrom[parentUid] = undefined;
-        // delete item.mapFrom[parentUid];
-        // item.mapFrom.length -= 1;
     }
 };

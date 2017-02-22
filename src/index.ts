@@ -2,7 +2,7 @@
 import { getCache, put, get, getEdit, evict, reset, uuid, print } from './cache';
 
 (function () {
-    if (window) {
+    if (typeof window !== 'undefined' && window !== null) {
         (window as any).One = {
             getCache,
             put,

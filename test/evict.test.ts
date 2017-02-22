@@ -1,4 +1,3 @@
-import { clearNext } from '../src/evict';
 import { config, instances, setTesting } from '../src/cache';
 import { expect } from 'chai'
 import * as sinon from 'sinon'
@@ -415,17 +414,17 @@ describe("evict", function () {
         // TODO evict 1
     })
 
-    it('clears tail of nodes', () => {
-        let instance: ICacheInstance = new CacheInstance("test");
-        for (let i = 0; i < 3; i++) {
-            let node: ICacheNode = new CacheNode(i);
-            instance.addNode(node);
-        }
-        node(instance, 1);
-        clearNext(instance);
-        expect(instance.size()).to.equal(2)
-        expect(instance.length()).to.equal(2)
-    })
+    // it('clears tail of nodes', () => {
+    //     let instance: ICacheInstance = new CacheInstance("test");
+    //     for (let i = 0; i < 3; i++) {
+    //         let node: ICacheNode = new CacheNode(i);
+    //         instance.addNode(node);
+    //     }
+    //     node(instance, 1);
+    //     clearNext(instance);
+    //     expect(instance.size()).to.equal(2)
+    //     expect(instance.length()).to.equal(2)
+    // })
 });
 
 

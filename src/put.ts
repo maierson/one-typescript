@@ -1,7 +1,6 @@
 import { ICacheInstance } from './CacheInstance';
 import CacheItem from './CacheItem';
 import CacheMap from './CacheMap';
-import { clearNext } from './evict';
 import { ICacheStats, IFlushArgs } from './interfaces';
 import { getCallStats } from './locate';
 import { isArray, isObject } from './util';
@@ -14,11 +13,11 @@ import { parse } from './parse';
  * to match any present in the item's entity tree.
  *
  * @param {Object|Object[]} entityOrArray object to be put into the context
- * @returns {*} historyState object containing specific information
+ * @returns {ICacheStats} historyState object containing specific information
  *              about the cache node that has been created
  *              to store the items that were put.
  */
-export const putItem = (entity: {} | Array<{}>, instance: ICacheInstance) => {
+export const putItem = (entity: {} | Array<{}>, instance: ICacheInstance): ICacheStats => {
     // TODO ****** freeze arrays on put
     // only mergeThread entities with uid
     if ((isArray(entity) || isObject(entity))) {

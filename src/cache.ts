@@ -61,10 +61,8 @@ export function getCache(instanceName = "one", configuration: {} = defaultConfig
     if (!instances[instanceName]) {
         instances[instanceName] = createCache(instanceName);
     }
-    if (window) {
-        if (window[instanceName] === undefined) {
-            window[instanceName] = instances[instanceName];
-        }
+    if (typeof window !== 'undefined' && window !== null && window[instanceName] === undefined) {
+        window[instanceName] = instances[instanceName];
     }
     return instances[instanceName];
 }
@@ -93,6 +91,9 @@ export const reset = (): void => {
     getCache().reset();
 }
 
+/**
+ * Utility function to create uuids.
+ */
 export const uuid = (): string => {
     // UUID
     var lut = [];
@@ -114,49 +115,86 @@ export const uuid = (): string => {
         + lut[d3 >> 16 & 0xFF] + lut[d3 >> 24 & 0xFF];
 }
 
+/**
+ * Creates a singleton instance of the cache.
+ * 
+ * @param {string} name optional name of the cache instance. Use it to retrive
+ * cache instances by name.
+ * @returns {ICache} a new cache instance.
+ */
 function createCache(name: string): ICache {
 
     const instance: ICacheInstance = new CacheInstance(name);
 
     /**
-     * Resets the cache to empty.
+     * Empties the cache.
      */
     const reset = () => {
         instance.reset();
     };
 
+    /**
+     * Adds or updates an item in the cache and returns a set of
+     * stats about the state of the cache after the operation is complete.
+     *
+     * @param {{} | Array<{}>} item the object or array of objects to be
+     *          added / updated to the cache
+     * @returns {ICacheStats} cache statistics.
+     */
     const put = (item: {} | Array<{}>): ICacheStats => {
         return putItem(item, instance);
     }
 
     /**
-     * @param entity entity or array of entities or entity uids to retrieve frozen from the cache
-     * @param nodeId optional id of a node to get the entities from in case of time travel.
+     * @param {string | number | {} | Array<any>} entity entity or array of entities or entity uids
+     *          to retrieve frozen from the cache
+     * @param {number} nodeId optional id of a node to get the entities from
+     *          in case of time travel.
      */
     const get = (entity: string | number | {} | Array<any>, nodeId?: number) => {
         return getItem(entity, instance, nodeId);
     }
 
     /**
-     * @param entity entity or array of entities or entity uids to retrieve cloned and editable from the cache
-     * @param nodeId optional id of a node to get the entities from in case of time travel.
+     * @param {string | number | {} | Array<any>} entity entity or array of entities or entity uids
+     *          to retrieve cloned and editable from the cache
+     * @param {number} nodeId optional id of a node to get the entities from
+     *          in case of time travel.
      */
     const getEdit = (uidOrEntityOrArray: string | number | {} | Array<any>, nodeId?: number) => {
         return getEditItem(uidOrEntityOrArray, instance, nodeId);
     }
 
+    /**
+     * Ejects an item or collection of items from the cache. Takes either
+     * an object, a uid or a collection of each.
+     *
+     * @param {string | number | {} | Array<any>} uidOrEntityOrArray
+     * @returns {ICacheStats} cache statistics.
+     */
     const evict = (uidOrEntityOrArray: string | number | {} | Array<any>): ICacheStats => {
         return evictItem(uidOrEntityOrArray, instance);
     }
 
+    /**
+     * @returns {number} the number of items cached on the current node.
+     */
     const size = () => {
         return cacheSize(instance);
     }
 
+    /**
+     * @param instance the cache instance to evaluate.
+     * @returns {number} the number of nodes in the current cache instance.
+     */
     const length = () => {
         return cacheLength(instance);
     }
 
+    /**
+     * @returns {string} a printable representation of the entire cache (all nodes).
+     * Pass the result directly to console.log() for debugging.
+     */
     const print = () => {
         return printCache(instance);
     }
@@ -172,6 +210,7 @@ function createCache(name: string): ICache {
         print: print,
     }
 
+    // for testing only    
     if (cacheTest === true) {
         (result as any).refTo = uid => {
             let item = getCachedItem(uid, instance);

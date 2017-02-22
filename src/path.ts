@@ -3,7 +3,6 @@
  * Only need get, del from
  * https://github.com/mariocasciaro/object-path
  */
-"use strict";
 
 import { isObject, isArray, isString, isNumber, isEmpty } from './util';
 
@@ -76,19 +75,5 @@ export function get(obj: any, path: any, defaultValue?: any): any {
 
     return get(obj[currentPath], path.slice(1), defaultValue);
 }
-
-/**
- *
- * @param propChain
- * @param prop
- */
-export const concatProp = (propChain, prop) => {
-    if (propChain === "") {
-        propChain = prop;
-    } else {
-        propChain = propChain + "." + prop;
-    }
-    return propChain;
-};
 
 

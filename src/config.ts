@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Cache configurable properties.
  * Created by maierdesign on 1/19/16.

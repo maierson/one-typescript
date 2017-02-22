@@ -3,7 +3,8 @@ import CacheItem from './CacheItem';
 import { ICacheInstance } from './CacheInstance';
 
 /**
- * Arguments object used for flushing changes to a specific cache instance.
+ * Config object used for flushing changes to a specific cache instance.
+ * Holds all variables that are constant throughout the flushing cycle.
  */
 export interface IFlushArgs {
 
@@ -13,23 +14,36 @@ export interface IFlushArgs {
     /** map of potential evicts in case of de-referencing */
     evictMap?: CacheMap<CacheItem>,
 
-    // /** id of item's direct parent */
-    // parentUid?: string,
-
     /** instance of the cache currently being modified */
     instance: ICacheInstance
 }
 
+/**
+ * Cache statistics.
+ * 
+ * @export
+ * @interface ICacheStats
+ */
 export interface ICacheStats {
-    /* whether the operation was successful or faild*/
+    /** 
+     * Whether the operation was successful or failed
+     */
     success: boolean,
 
-    /* id of the node that the current operation created if successful */
+    /** 
+     * Id of the node that the current operation created (when successful)
+     */
     nodeId: number,
 
-    /* total number of nodes on the cache */
+    /** 
+     * Total number of nodes on the cache
+     */
     length: number,
 
-    /* name of the cache instance - defaults to 'one' */
+    /** 
+     * Name of the cache instance - defaults to 'one'. Multiple
+     * cache concurrent instances can be created but each is a
+     * singleton retrievable by name.
+     */
     name: string,
 }

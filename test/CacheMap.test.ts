@@ -72,10 +72,6 @@ describe("CacheMap", () => {
         expect(result[4]).to.equal('node3')
         expect(result[5]).to.equal('three')
     })
-
-    it('does not enumerate length', () => {
-        // console.log(flushMap.propertyIsEnumerable("_length"))
-    })
 })
 
 

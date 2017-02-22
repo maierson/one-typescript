@@ -1,7 +1,13 @@
 import { instances } from './cache';
 declare const require: any;
-const objectAssign = require('object-assign');
 
+/**
+ * Hash map of a collection of paths.
+ * 
+ * @export
+ * @class CacheMap
+ * @template T 
+ */
 export default class CacheMap<T> {
 
     paths = {};

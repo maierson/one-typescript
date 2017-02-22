@@ -17,9 +17,9 @@ declare let require: any;
  *
  * @param {Object|string|Object[]|string[]}obj Either a single entity or its uid or an array of
  *     entities or an array of uids (cannot mix entities with uids)
- * @return boolean true if the state was modified, false otherwise
+ * @return {ICacheStats} cache statistics.
  */
-export const evictItem = (obj, instance: ICacheInstance) => {
+export const evictItem = (obj, instance: ICacheInstance): ICacheStats => {
 
     let uidArray = buildEvictUidArray(obj);
 
@@ -40,12 +40,6 @@ export const evictItem = (obj, instance: ICacheInstance) => {
         tempState.set(key, value);
     });
 
-
-    // TODO force the thread current to the end first instead
-
-    // remove subsequent states - altering the nodes
-    // clearNext(instance);
-
     let flushMap = new CacheMap<CacheItem>();
     let evictMap = new CacheMap<CacheItem>();
 
@@ -58,15 +52,14 @@ export const evictItem = (obj, instance: ICacheInstance) => {
     let parentsChanged = [];
 
     uidArray.forEach(uid => {
-        //flushArgs.entityUid = uid;
 
-        // remove REF_FROM in item references metadata
+        // remove refFrom in item references metadata
         clearTargetRefFroms(uid, flushArgs);
 
         // value doesn't matter here - will be evicted
         evictMap.set(uid, null);
 
-        // remove REF_TO in parent metadata
+        // remove refTo in parent metadata
         clearParentRefTos(uid, uidArray, parentsChanged, flushArgs);
     });
 
@@ -87,7 +80,12 @@ export const evictItem = (obj, instance: ICacheInstance) => {
     return getCallStats(true, instance);
 };
 
-const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheItem>, evictMap: CacheMap<CacheItem>, instance: ICacheInstance) => {
+/**
+ * Updates an entire collection of parents that may have been
+ * updated as a result of their inner references being changed.
+ */
+const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheItem>,
+    evictMap: CacheMap<CacheItem>, instance: ICacheInstance) => {
     if (parentsChanged && parentsChanged.length > 0 && cacheSize(instance) > 0) {
         let flushArgs: IFlushArgs = {
             flushMap: flushMap,
@@ -199,10 +197,10 @@ const clearRefTo = (parentItem: CacheItem, refUid, instance: ICacheInstance) => 
 };
 
 /**
-    *
-    * @param obj
-    * @returns {*}
-    */
+ *
+ * @param obj
+ * @returns {*}
+ */
 const buildEvictUidArray = obj => {
     let uidArray = [];
     if (isArray(obj)) {
@@ -228,36 +226,4 @@ const buildEvictUidArray = obj => {
         uidArray.push(String(uid));
     }
     return uidArray;
-};
-
-
-
-/**
- * Removes the nodes after the current node in order to repurpose history if user undoes and chooses another
- * direction
- *
- * @param threadId
- */
-export const clearNext = (instance: ICacheInstance) => {
-    // clear all nodes after this one
-    let thread = instance.thread;
-    if (thread.current < thread.nodes.length - 1) {
-        let removedNodes = thread.nodes.slice(thread.current + 1, thread.nodes.length);
-        thread.nodes = thread.nodes.slice(0, thread.current + 1);
-        thread.current = thread.nodes.length - 1;
-        truncateThreads(removedNodes, instance);
-    }
-};
-
-/**
-    *
-    * @param removedNodes array of nodes that are being removed from the main thread
-    */
-const truncateThreads = (removedNodes, instance: ICacheInstance) => {
-    removedNodes.forEach(cacheNodeId => {
-        let cacheNode = instance.repo.get(cacheNodeId);
-        if (cacheNode) {
-            instance.repo.delete(cacheNodeId);
-        }
-    });
 };

@@ -4,8 +4,12 @@ import { isOnCache, ensureOnFlushMap, ensureItem, isOnFlushMap } from './cacheUt
 import { updateRefTos, assignRefToParent } from './ref';
 import { config } from './cache';
 
-/* Parses an object tree and puts all the uid items onto 
- the flush map for atomic flushing to the cache */
+/**
+ * Entry point for the main parsing function.
+ *
+ * Analyzes an object tree and puts all the uid items onto
+ * the flush map for atomic (single op) flushing to the cache.
+ */
 export const parse = (entity, flushArgs: IFlushArgs) => {
     if (hasUid(entity)) {
         // if it's the same entity on the cache then abort
@@ -22,14 +26,15 @@ export const parse = (entity, flushArgs: IFlushArgs) => {
     }
 }
 
+/**
+ * Adds a single uid entity to the flush map.
+ */
 const _addToFlushMap = (entity, flushArgs: IFlushArgs) => {
-    // Object.freeze(entity);
 
     ensureOnFlushMap(entity, flushArgs);
 
     // reset the parent uid to this entity
     // every uid entity is the beginning of a new path and parentUid
-
     _parseEntity(entity, entity[config.uidName], [], flushArgs);
 
     // done with building this entity 
@@ -40,6 +45,9 @@ const _addToFlushMap = (entity, flushArgs: IFlushArgs) => {
     );
 }
 
+/**
+ * Parse an entity recursively whether it has a uid or not.
+ */
 const _parseEntity = (entity, parentUid, path: Array<string> = [], flushArgs: IFlushArgs) => {
     for (let key in entity) {
         if (entity.hasOwnProperty(key)) {
@@ -57,6 +65,9 @@ const _parseEntity = (entity, parentUid, path: Array<string> = [], flushArgs: IF
     }
 }
 
+/**
+ * Parses an array. Can call itself recursively.
+ */
 const _parseArray = (arr, parentUid, path: Array<string> = [], flushArgs) => {
     arr.forEach((item, index) => {
         if (isArray(item)) {
@@ -67,6 +78,9 @@ const _parseArray = (arr, parentUid, path: Array<string> = [], flushArgs) => {
     })
 }
 
+/**
+ * Parses an object with or without uid.
+ */
 const _parseObject = (obj, parentUid, path, flushArgs) => {
     if (hasUid(obj)) {
         _cacheUidObj(obj, parentUid, path, flushArgs);
@@ -75,6 +89,9 @@ const _parseObject = (obj, parentUid, path, flushArgs) => {
     }
 }
 
+/**
+ * 
+ */
 const _cacheUidObj = (entity, parentUid, path: Array<string>, flushArgs: IFlushArgs) => {
     // ensure the entity is on an item with the proper path referenced
     let item = ensureItem(entity, flushArgs);

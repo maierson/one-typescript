@@ -12,6 +12,10 @@ export const isOnCache = (entity, instance: ICacheInstance): boolean => {
     return cachedItem && cachedItem.entity === entity;
 }
 
+/**
+ * Checks whether a specific entity is already added to the
+ * flush map when executing an atomic op.
+ */
 export const isOnFlushMap = (entity, flushMap): boolean => {
     return !!flushMap.get(entity[config.uid]);
 }
@@ -20,6 +24,7 @@ export const isOnFlushMap = (entity, flushMap): boolean => {
  * Pulls an item out of the current version of the cache.
  * Gets the actual real instance but frozen (uneditable).
  * Useful for testing.
+ *
  * @param uid
  * @returns {*}
  */
@@ -28,7 +33,9 @@ export const getCachedItem = (uid: string, instance: ICacheInstance): CacheItem 
     return currentNode ? currentNode.items.get(String(uid)) : undefined;
 };
 
-/** Finds an item anywhere it exists either on the cache or on the flushMap */
+/**
+ * Finds an item anywhere it exists either on the cache or on the flushMap
+ */
 export const getItemFlushOrCached = (uid: string, flushArgs: IFlushArgs) => {
     if (uid) {
         uid = String(uid);
@@ -63,9 +70,9 @@ function getRepoNode(nodeId: number, repo: ICacheRepo): ICacheNode {
 }
 
 /**
-  *
-  * @returns {Map}
-  */
+ *
+ * @returns {CacheMap}
+ */
 export const getCacheCurrentStack = (instance: ICacheInstance): CacheMap<CacheItem> => {
     let currentNode = getCurrentNode(instance);
     return currentNode ? currentNode.items : undefined;
@@ -80,8 +87,6 @@ export const ensureOnFlushMap = (entity, flushArgs: IFlushArgs) => {
 
     if (!flushArgs.flushMap.has(entityUid)) {
         ensureItem(entity, flushArgs);
-        // reset the parent uid to the object being iterated down
-        //     flushArgs.parentUid = String(entityUid);
     }
 }
 
@@ -90,7 +95,7 @@ export const ensureOnFlushMap = (entity, flushArgs: IFlushArgs) => {
  *
  * @param entity
  * @param flushMap
- * @returns {*} an editable item corresponding to the entity on the flush map.
+ * @returns {CacheItem} an editable item corresponding to the entity on the flush map.
  */
 export const ensureItem = (entity, flushArgs: IFlushArgs): CacheItem => {
     let itemUid = String(entity[config.uidName]);
@@ -106,11 +111,4 @@ export const ensureItem = (entity, flushArgs: IFlushArgs): CacheItem => {
     flushArgs.flushMap.set(itemUid, item);
     flushArgs.flushMap['__UPDATED__'] = true;
     return item;
-};
-
-export const freezeItem = (item: CacheItem) => {
-    Object.freeze(item);
-    Object.freeze(item.entity);
-    Object.freeze(item.mapTo);
-    Object.freeze(item.mapFrom);
 };

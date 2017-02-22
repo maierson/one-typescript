@@ -14,7 +14,7 @@ import { getNewCacheNode } from './util';
  * on each put operation this must be executed with mutations
  * thus adding all items on the same mutating instance of the map.
  *
- * All items to be added must have been previously collected in the array.
+ * All items to be added must have been previously collected in the flushMap.
  *
  * @param flushArgs config object
  * @param instance the current instance of the cache

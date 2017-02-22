@@ -581,7 +581,6 @@ describe("put-get", function () {
         };
         one.put(item);
 
-        //  console.log('FINAL', one.print())        
         // check state
         expect(one.size()).to.equal(6);
         expect(one.length()).to.equal(1);

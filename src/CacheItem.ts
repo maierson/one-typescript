@@ -3,8 +3,9 @@ declare let require: any;
 
 /**
  * Stores a reference to a single entity inside a ICacheNode. It also
- * holds ref_to and ref_from metadata for all outgoing or incoming
- * references to the entity.
+ * holds refTo and refFrom metadata for all outgoing or incoming
+ * references to the entity. These are used to efficiently update
+ * all instances of the entity in the cache when the entity changes.
  */
 export default class CacheItem {
     entity;

@@ -1,8 +1,8 @@
 import CacheMap from './CacheMap';
 export default class CacheItem {
-    entity: {};
+    entity: any;
     mapTo: CacheMap<Array<string>>;
     mapFrom: CacheMap<Array<string>>;
-    constructor(entity: {}, liveItem?: CacheItem);
+    constructor(entity: any, liveItem?: CacheItem);
     clone: () => CacheItem;
 }

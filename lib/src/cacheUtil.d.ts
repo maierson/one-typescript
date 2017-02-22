@@ -1,0 +1,11 @@
+import CacheItem from './CacheItem';
+import { ICacheInstance } from './CacheInstance';
+import CacheMap from './CacheMap';
+import { IFlushArgs } from './interfaces';
+export declare const isOnCache: (entity: any, instance: ICacheInstance) => boolean;
+export declare const isOnFlushMap: (entity: any, flushMap: any) => boolean;
+export declare const getCachedItem: (uid: string, instance: ICacheInstance) => CacheItem;
+export declare const getItemFlushOrCached: (uid: string, flushArgs: IFlushArgs) => CacheItem;
+export declare const getCacheCurrentStack: (instance: ICacheInstance) => CacheMap<CacheItem>;
+export declare const ensureOnFlushMap: (entity: any, flushArgs: IFlushArgs) => void;
+export declare const ensureItem: (entity: any, flushArgs: IFlushArgs) => CacheItem;
