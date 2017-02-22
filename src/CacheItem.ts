@@ -7,11 +7,11 @@ declare let require: any;
  * references to the entity.
  */
 export default class CacheItem {
-    entity: {};
+    entity;
     mapTo: CacheMap<Array<string>>;
     mapFrom: CacheMap<Array<string>>;
 
-    constructor(entity: {}, liveItem?: CacheItem) {
+    constructor(entity, liveItem?: CacheItem) {
         this.entity = entity;
         // if existing copy the data from the live item else just initialize it
         if (liveItem) {

@@ -7,7 +7,8 @@ import { ICacheNode } from './CacheNode'
 /**
   * Gets the state of the cache.
   * @param success The outcome of a cache operation
-  * @param threadId optional thread id to request the cache history state for a specific thread
+  * @param threadId optional thread id to request the
+  *             cache history state for a specific thread
   * @returns {{}}
   */
 export const getCallStats = (success: boolean, instance: ICacheInstance): ICacheStats => {
@@ -20,9 +21,11 @@ export const getCallStats = (success: boolean, instance: ICacheInstance): ICache
 };
 
 /**
- * Gets or sets the current position of the cache by node id. Using index() is not always reliable in case some
- * nodes are deleted to clear up memory. Node is more reliable in terms of getting the id of a node that can be
- * checked for existence.
+ * Gets or sets the current position of the cache by node id.
+ * Using index() is not always reliable in case some nodes
+ * are deleted to clear up memory. Node is more reliable
+ * in terms of getting the id of a node that can be checked
+ * for existence.
  *
  * @param nodeId the id of the node to navigate to if applicable
  * @returns {*} for node() - the id of the node if existing or -1 if cache is empty, for node(id) the current

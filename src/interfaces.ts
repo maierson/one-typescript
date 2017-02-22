@@ -7,23 +7,14 @@ import { ICacheInstance } from './CacheInstance';
  */
 export interface IFlushArgs {
 
-    /** the entity(s) being manipulated for caching */
-    entity?: {} | Array<{}>,
-
-    /* optional for evicts */
-    entityUid?: string,
-
     /** atomic operation map for flushing all changes at once */
     flushMap: CacheMap<CacheItem>,
 
     /** map of potential evicts in case of de-referencing */
     evictMap?: CacheMap<CacheItem>,
 
-    /** id of item's direct parent */
-    parentUid?: string,
-
-    /** path to the reference being changed inside an entity */
-    refPath?: string,
+    // /** id of item's direct parent */
+    // parentUid?: string,
 
     /** instance of the cache currently being modified */
     instance: ICacheInstance

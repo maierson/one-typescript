@@ -1,14 +1,14 @@
 import { ICacheStats } from './interfaces';
 import * as util from './util';
 import { configure, defaultConfig } from './config';
-import { getCurrentNode } from './locate';
 import { putItem } from './put';
 import { printCache } from './print';
 import CacheInstance from './CacheInstance';
 import { ICacheInstance } from './CacheInstance';
 import { cacheSize, cacheLength } from './util';
-import { getCachedItem, getItem, getEditItem } from './get';
+import { getItem, getEditItem } from './get';
 import { evictItem } from './evict';
+import { getCachedItem } from './cacheUtil';
 
 /**
  * All current instances of the cache.
@@ -57,9 +57,7 @@ export function getCache(instanceName = "one", configuration: {} = defaultConfig
     if (!config /*&& !instances*/) {
         config = configure(configuration);
     }
-    // if (!instances) {
-    //     instances = {};
-    // }
+
     if (!instances[instanceName]) {
         instances[instanceName] = createCache(instanceName);
     }

@@ -391,10 +391,10 @@ describe("evict", function () {
         expect(one.get(1)).to.be.undefined;
 
         expect(one.refFrom('top').size()).to.equal(0);
-        expect(one.refTo('top').paths[2][0]).to.equal('items.0.1')
+        expect(one.refTo('top').paths[2][0]).to.equal('items.0.0')
         expect(one.refTo('top').size()).to.equal(1)
 
-        expect(one.refFrom(2).get("top")[0]).to.equal("items.0.1");
+        expect(one.refFrom(2).get("top")[0]).to.equal("items.0.0");
         expect(one.refFrom(2).size()).to.equal(1);
         expect(one.refTo(2).size()).to.equal(0);
     })

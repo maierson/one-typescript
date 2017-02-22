@@ -1,16 +1,16 @@
-import { getItemFlushOrCached, ensureItem } from './flush';
+
 import { IFlushArgs } from './interfaces';
 import CacheItem from './CacheItem';
 import { config } from './cache';
 import * as opath from './path';
-import { getCachedItem } from './get';
 import { deepClone } from './util';
+import { getItemFlushOrCached, getCachedItem, ensureItem } from './cacheUtil';
 
-export const assignRefToParent = (refItem, flushArgs: IFlushArgs) => {
-    if (flushArgs.parentUid) {
-        let parentItem = getItemFlushOrCached(flushArgs.parentUid, flushArgs);
-        if (parentItem && flushArgs.refPath) {
-            assignRefs(parentItem, refItem, flushArgs.refPath);
+export const assignRefToParent = (refItem, parentUid, path: Array<string>, flushArgs: IFlushArgs) => {
+    if (parentUid) {
+        let parentItem = getItemFlushOrCached(parentUid, flushArgs);
+        if (parentItem && path.length > 0) {
+            assignRefs(parentItem, refItem, path);
         }
     }
 };
@@ -20,12 +20,12 @@ export const assignRefToParent = (refItem, flushArgs: IFlushArgs) => {
 
   * @param parentItem cache item of the entity containing the reference
   * @param refItem cache item of the reference entity
-  * @param refPath the concatenated path of the ref entity inside the parent entity
+  * @param path array containing all the path segments where the itme is located
   */
-const assignRefs = (parentItem: CacheItem, refItem: CacheItem, refPath: string) => {
+const assignRefs = (parentItem: CacheItem, refItem: CacheItem, path: Array<string>) => {
     let parentUid = parentItem.entity[config.uidName];
     let refUid = refItem.entity[config.uidName];
-
+    const refPath = path.join('.');
     // add parent reference to child
     addRefTo(parentItem, refUid, refPath);
     addRefFrom(refItem, parentUid, refPath);
@@ -82,37 +82,51 @@ export const updatePointers = (flushArgs: IFlushArgs) => {
 }
 
 export const updateRefFroms = (item: CacheItem, flushArgs: IFlushArgs) => {
-    item.mapFrom.forEach((parentUid, paths) => {
-        let parentItem = flushArgs.flushMap.get(parentUid);
-        if (!parentItem) {
-            parentItem = getCachedItem(parentUid, flushArgs.instance);
-        }
+    if (item.mapFrom.length > 0) {
 
-        /* only update if dirty - no need to iterate all paths - just check the first one
-        - if dirty then the parent entity needs to be cloned and updated anyways so pass in
-        the ref entity when cloning - it will be updated wherever it is encountered during cloning */
-        if (parentItem && paths.length > 0) {
-            let firstPath = paths[0];
-            let targetRef = opath.get(parentItem.entity, firstPath);
-            // check for dirty
-            let dirty = (targetRef && targetRef !== item.entity);
+        console.log(JSON.stringify(item.mapFrom, null, 2), item.entity)
 
-            if (dirty === true) {
-                let args: IFlushArgs = {
-                    entity: parentItem.entity,
-                    flushMap: flushArgs.flushMap,
-                    instance: flushArgs.instance
-                }
-                parentItem = ensureItem(args);
+        item.mapFrom.forEach((parentUid, paths) => {
+            console.log(parentUid, paths)
+            let parentItem = flushArgs.flushMap.get(parentUid);
 
-                // TODO figure out a way to not clone the entity every time particularly if it is
-                // already present on the flush map
-
-                // the entity is still frozen here - clone it to update and freeze it deeply
-                parentItem.entity = deepClone(parentItem.entity, item.entity, true);
+            if (!parentItem) {
+                parentItem = getCachedItem(parentUid, flushArgs.instance);
             }
-        }
-    })
+
+            // console.log(JSON.stringify(flushArgs.flushMap, null, 2))
+
+            /* only update if dirty - no need to iterate all paths - just check the first one
+            - if dirty then the parent entity needs to be cloned and updated anyways so pass in
+            the ref entity when cloning - it will be updated wherever it is encountered during cloning */
+            if (parentItem && paths.length > 0) {
+                let firstPath = paths[0];
+
+                let targetRef = opath.get(parentItem.entity, firstPath);
+
+
+                let dirty = (targetRef && targetRef !== item.entity);
+
+
+
+
+
+                if (dirty === true) {
+                    let args: IFlushArgs = {
+                        flushMap: flushArgs.flushMap,
+                        instance: flushArgs.instance
+                    }
+                    parentItem = ensureItem(parentItem.entity, args);
+
+                    // TODO figure out a way to not clone the entity every time particularly if it is
+                    // already present on the flush map
+
+                    // the entity is still frozen here - clone it to update and freeze it deeply
+                    parentItem.entity = deepClone(parentItem.entity, item.entity, true);
+                }
+            }
+        })
+    }
 }
 
 /**
@@ -129,39 +143,30 @@ export const updateRefTos = (entityUid, flushArgs: IFlushArgs) => {
 
 const updateItemRefTos = (item: CacheItem, flushArgs: IFlushArgs) => {
 
-    if (item) {
-        // check the references for each referenced item. References are keyed by refToUid in the refTo object.
-        // Each refToUid value is an array containing a list of paths where the reference is located inside this
-        // entity
-        item.mapTo.forEach((toUid, paths) => {
-            // get the list of paths
-            // update the paths array to contain only the remaining references
-            let updatedPaths = paths.map(path => {
-                let reference = opath.get(item.entity, path);
-                if (reference) {
-                    let targetUid = reference[config.uidName];
-                    if (targetUid) {
-                        // *** keep double equality here to convert strings to numbers
-                        let found = targetUid == toUid;
-                        if (found === true) {
-                            return path;
-                        }
-                    }
-                }
-                removeRefFrom_Value(item.entity[config.uidName], toUid, flushArgs);
-            }).filter(item => {
-                return item !== null && item !== undefined;
-            });
+    if (!item || !item.mapTo) return;
 
-            // update or remove the paths
-            if (updatedPaths.length > 0) {
-                item.mapTo.set(toUid, updatedPaths);
-            } else {
-                item.mapTo.delete(toUid);
-                //delete item.mapTo[toUid];
-            }
+    // check the references for each referenced item. References are keyed by 
+    // refToUid in the refTo object. Each refToUid value is an array containing 
+    // a list of paths where the reference is located inside this entity
+    item.mapTo.forEach((toUid, paths) => {
+
+        // get the list of paths + update the paths array 
+        // to contain only the remaining references
+        let updatedPaths = paths.filter(path => {
+            let reference = opath.get(item.entity, path);
+            const hasRef = reference && String(reference[config.uidName]) === String(toUid)
+            if (!hasRef)
+                removeRefFrom_Value(item.entity[config.uidName], toUid, flushArgs, path);
+            return hasRef;
         })
-    }
+
+        // update or remove the paths
+        if (updatedPaths.length > 0) {
+            item.mapTo.set(toUid, updatedPaths);
+        } else {
+            item.mapTo.delete(toUid);
+        }
+    })
 }
 
 /**
@@ -174,7 +179,7 @@ const updateItemRefTos = (item: CacheItem, flushArgs: IFlushArgs) => {
   * @param flushMap map of updated items to be persisted into the cache
   * @param evictMap map of updated items to be removed from the cache
   */
-const removeRefFrom_Value = (parentUid, refUid, flushArgs: IFlushArgs) => {
+const removeRefFrom_Value = (parentUid, refUid, flushArgs: IFlushArgs, path: string) => {
     // get the item of the referenced entity
     let refItem: CacheItem = getItemFlushOrCached(refUid, flushArgs);
     if (refItem) {
@@ -185,7 +190,7 @@ const removeRefFrom_Value = (parentUid, refUid, flushArgs: IFlushArgs) => {
         // remove the path from the refFrom
         if (refItem.mapFrom.has(parentUid)) {
             // get the array of refs
-            removeRefFrom(refItem, parentUid, flushArgs.refPath);
+            removeRefFrom(refItem, parentUid, path);
             if (refItem.mapFrom.size() === 0) {
                 flushArgs.evictMap.set(refUid, refItem);
                 // just in case

@@ -7,7 +7,6 @@ import * as path from "../src/path";
 import * as mocha from 'mocha';
 import * as One from '../src/cache';
 import CacheMap from '../src/CacheMap';
-import { getCachedItem } from '../src/get';
 import CacheItem from '../src/CacheItem';
 
 describe("put-get", function () {
@@ -27,7 +26,7 @@ describe("put-get", function () {
         one.reset();
     });
 
-    it('puts simple uid entity', () => {
+    it('should put simple uid entity', () => {
         let item = { uid: 1 };
         let item2 = { uid: 2 };
         one.put(item);
@@ -40,7 +39,7 @@ describe("put-get", function () {
         expect(Object.isFrozen(result)).to.be.true;
     })
 
-    it("puts frozen object", function () {
+    it("should put frozen object", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: "2", item: item1, otherItem: undefined };
         one.put(item2);
@@ -61,7 +60,7 @@ describe("put-get", function () {
         expect(Object.isFrozen(result1)).to.be.true;
     });
 
-    it("puts simple array", function () {
+    it("should put simple array", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2 };
         one.put([item1, item2]);
@@ -75,7 +74,7 @@ describe("put-get", function () {
         expect(one.length()).to.equal(1);
     });
 
-    it("puts item with simple array", function () {
+    it("should put item with simple array", function () {
         let item = { uid: 1, items: ["one", "two", "three"] };
         one.put(item);
         let result = one.get(1);
@@ -88,8 +87,13 @@ describe("put-get", function () {
         expect(Object.isFrozen(result.items)).to.be.true;
     });
 
-    it("puts item with array of arrays", () => {
-        let item = { uid: 'top', items: [[{ uid: 1 }, { uid: 2 }], [{ uid: 3 }]] };
+    it("should put item with array of arrays", () => {
+        let item = {
+            uid: 'top',
+            items: [
+                [{ uid: 1 }, { uid: 2 }],
+                [{ uid: 3 }]]
+        };
         one.put(item);
 
         expect(one.refFrom(1).get("top")[0]).to.equal("items.0.0");
@@ -105,7 +109,7 @@ describe("put-get", function () {
         expect(one.refTo(3).size()).to.equal(0);
     })
 
-    it("puts item with array of arrays repeating", () => {
+    it("should put item with array of arrays repeating", () => {
         let item = { uid: 'top', items: [[{ uid: 1 }, { uid: 2 }], [{ uid: 1 }]] };
         one.put(item);
 
@@ -119,7 +123,7 @@ describe("put-get", function () {
         expect(one.refTo(2).size()).to.equal(0);
     })
 
-    it("freezes entity deeply", function () {
+    it("should freeze entity deeply", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2, item: item1 };
         let item3 = {
@@ -128,14 +132,15 @@ describe("put-get", function () {
         };
         one.put(item3);
         let result = one.get(3);
+        expect(item3 === result).to.be.true;
+        //fail
         expect(Object.isFrozen(result)).to.be.true;
         expect(Object.isFrozen(result.item)).to.be.true;
         expect(Object.isFrozen(result.item.item)).to.be.true;
         expect(Object.isFrozen(item3)).to.be.true;
-        expect(item3 === result).to.be.true;
     });
 
-    it("puts / gets even if top entity has no uid", function () {
+    it("should put / get even if top entity has no uid", function () {
         let item1 = { uid: 1 };
         let item = {
             val: "test",
@@ -149,7 +154,7 @@ describe("put-get", function () {
         }).to.throw(TypeError);
     });
 
-    it("does not put the entity if not changed", function () {
+    it("should not put the entity if not changed", function () {
         let item1 = { uid: 1 };
         let state = one.put(item1);
         expect(state.success).to.be.true;
@@ -157,7 +162,7 @@ describe("put-get", function () {
         expect(state.success).to.be.false;
     });
 
-    it("puts array from top entity that has no uid", function () {
+    it("should not put array from top entity that has no uid", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2, items: [item1] };
         let item = {
@@ -171,7 +176,7 @@ describe("put-get", function () {
         expect(one.length()).to.equal(1);
     });
 
-    it('gets editable clone', () => {
+    it('should get editable clone', () => {
         let item = { uid: 1 };
         one.put(item);
         let result = one.getEdit(1);
@@ -180,7 +185,7 @@ describe("put-get", function () {
         expect(item === result).to.be.false;
     })
 
-    it('maintains direct references non editable', () => {
+    it('should maintain direct references non editable', () => {
         let item = { uid: 1 };
         let item2 = { uid: 2, item: item };
         one.put(item2);
@@ -192,7 +197,7 @@ describe("put-get", function () {
         expect(result.uid === item2.uid).to.be.true;
     })
 
-    it('maintains array references non editable', () => {
+    it('should maintain array references non editable', () => {
         let item = { uid: 1 };
         let item2 = { uid: 2, items: [item] };
         one.put(item2);
@@ -205,7 +210,7 @@ describe("put-get", function () {
         expect(result.uid === item2.uid).to.be.true;
     })
 
-    it("puts simple array on strong", function () {
+    it("should put simple array on strong", function () {
         let item = { uid: 1, items: ["one", "two", "three"] };
         one.put(item);
         let result = one.getEdit(1);
@@ -220,7 +225,7 @@ describe("put-get", function () {
         expect(one.get(1).items[4]).to.equal("five");
     });
 
-    it("updates parent when inner uid ref changed"
+    it("should update parent when inner uid ref changed"
         + " but keeps other children references unchanged", function () {
             let item1 = { uid: 1 };
             let item2 = { uid: 2 };
@@ -243,7 +248,7 @@ describe("put-get", function () {
             expect(item2 === result2).to.be.true;
         });
 
-    it("updates parent when inner uid ref changed " +
+    it("should update parent when inner uid ref changed " +
         "but keeps other children references unchanged in ARRAY", function () {
             let item = { uid: "item" };
             let item1 = { uid: 1 };
@@ -269,7 +274,7 @@ describe("put-get", function () {
             expect(item2 === result2).to.be.true;
         });
 
-    it('puts top item with array but no uid', () => {
+    it('should put top item with array but no uid', () => {
         let item1 = { uid: 1 };
         let item2 = { uid: 2 };
         let item = {
@@ -285,7 +290,8 @@ describe("put-get", function () {
         let result2 = one.get(2);
         expect(result2).to.not.be.undefined;
     })
-    it("puts top array even if it contains no uid items", function () {
+
+    it("should put top array even if it contains no uid items", function () {
         let firstItem = { uid: "first" };
         let item1 = { uid: 1, item: firstItem };
         let item2 = { uid: 2 };
@@ -314,7 +320,7 @@ describe("put-get", function () {
         expect(one.size()).to.equal(5);
     });
 
-    it("puts array of items", function () {
+    it("should put array of items", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2 };
         let item3 = { uid: 3, item: item2 };
@@ -326,7 +332,7 @@ describe("put-get", function () {
         expect(one.get(3)).to.not.be.undefined;
     });
 
-    it("replaces existing props on existing entity "
+    it("should replace existing props on existing entity "
         + "when putting new entity that does not have them", function () {
             let item = {
                 uid: 1,
@@ -361,7 +367,7 @@ describe("put-get", function () {
             expect(hasThree).to.be.true;
         });
 
-    it("puts array of entities in one cache update", function () {
+    it("should put array of entities in one cache update", function () {
         let arr = [{ uid: 1 }, { uid: 2 }, { uid: 3 }];
         one.put(arr);
         expect(one.length()).to.equal(1);
@@ -371,7 +377,7 @@ describe("put-get", function () {
         expect(one.get(3)).to.not.be.undefined;
     });
 
-    it("puts a complex tree of objects contained in an array", function () {
+    it("should put a complex tree of objects contained in an array", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2, item: item1 };
         let item3 = {
@@ -392,21 +398,21 @@ describe("put-get", function () {
         expect(res3.children[0].uid).to.equal(1);
     });
 
-    it("does not add to cache if no uid", function () {
+    it("should not add to cache if no uid", function () {
         let existing = { uid: "" };
         one.put(existing);
         expect(one.size()).to.equal(0);
         expect(one.length()).to.equal(0);
     });
 
-    it("adds new item to the cache", function () {
+    it("should add new item to the cache", function () {
         let item = { uid: 1, value: "one" };
         one.put(item);
         expect(one.size()).to.equal(1);
         expect(one.length()).to.equal(1);
     });
 
-    it("adds inner array objects to the cache", function () {
+    it("should add inner array objects to the cache", function () {
         let item = {
             uid: 1,
             relative: { uid: 4, value: "four" },
@@ -439,7 +445,7 @@ describe("put-get", function () {
         let historyState = one.put({ uid: 100 });
     });
 
-    it("updates all pointing parents when putting nested entity", function () {
+    it("should update all pointing parents when putting nested entity", function () {
         let item1: any = { uid: 1 };
         // let item2 = { uid: 2 };
         let item3 = {
@@ -453,9 +459,6 @@ describe("put-get", function () {
         expect(one.length()).to.equal(1);
         expect(one.size()).to.equal(2);
 
-        // fail
-
-
         // at this point item1 is frozen. To continue editing must get a copy
         item1 = one.getEdit(1);
         // change item 1 and make sure it modified in item2 on current state but not previous
@@ -468,7 +471,7 @@ describe("put-get", function () {
         // expect(result.otherItem.nested.text).to.be.undefined;
     });
 
-    it("updates all pointing parents when putting and entity updated deeply inside another", function () {
+    it("should update all pointing parents when putting and entity updated deeply inside another", function () {
         let item1 = { uid: 1, val: "one" };
         let item2 = {
             uid: 2,
@@ -488,7 +491,7 @@ describe("put-get", function () {
         expect(result.item.val).to.equal("two");
     });
 
-    it("updates all pointing parents when putting and entity updated deeply inside another's array", function () {
+    it("should update all pointing parents when putting and entity updated deeply inside another's array", function () {
         let item1 = { uid: 1, val: "one" };
         let item2 = {
             uid: 2,
@@ -508,7 +511,7 @@ describe("put-get", function () {
         expect(result.item.val).to.equal("two");
     });
 
-    it("adds deep inner nested objects to the cache", function () {
+    it("should add deep inner nested objects to the cache", function () {
         let item1: any = { uid: 1 };
         let item2 = {
             uid: 2,
@@ -533,7 +536,7 @@ describe("put-get", function () {
         // expect(result.item.nested.deep.text).to.be.undefined;
     });
 
-    it("adds inner nested objects in array to the cache", function () {
+    it("should add inner nested objects in array to the cache", function () {
         let item1: any = { uid: 1 };
         let item2 = {
             uid: 2,
@@ -558,7 +561,7 @@ describe("put-get", function () {
         // expect(result.item.nested[0].text).to.be.undefined;
     });
 
-    it("replaces references with uid placeholders", function () {
+    it("should cache various nested scenarios", function () {
         let item = {
             uid: 1,
             relative: { uid: 4, value: "four" },
@@ -578,6 +581,7 @@ describe("put-get", function () {
         };
         one.put(item);
 
+        //  console.log('FINAL', one.print())        
         // check state
         expect(one.size()).to.equal(6);
         expect(one.length()).to.equal(1);
@@ -717,7 +721,7 @@ describe("put-get", function () {
         expect(one.length()).to.equal(1);
     });
 
-    it('adds reference to new object when exisiting on the cache', () => {
+    it('should add reference to new object when exisiting on the cache', () => {
         let item1 = { uid: 1 };
         one.put(item1);
         let item2 = {
@@ -769,9 +773,7 @@ describe("put-get", function () {
             expect(result_2.child === result_3.otherItem).to.be.true;
         });
 
-    it('rejects putting 2 instances in one put with same uid', () => {
-
-    })
+    it('rejects putting 2 instances in one put with same uid')
 
     it("preserves properties with null values", function () {
         let item1 = { uid: 1, value: "one" };
@@ -819,6 +821,21 @@ describe("put-get", function () {
         // result = one.get(1);
         // expect(result.test).to.be.undefined;
     });
+
+    it("builds prop chain for nested objects", () => {
+        let item1 = { uid: 1 };
+        let item2 = {
+            uid: 2,
+            level0: {
+                level1: {
+                    level2: item1
+                }
+            }
+        }
+        one.put(item2);
+        expect(one.refTo(2).size()).to.equal(1)
+        expect(one.refTo(2).paths["1"][0]).to.equal('level0.level1.level2')
+    })
 
     it("builds the prop chain correctly for objects", function () {
         let item = { uid: 1 };
@@ -872,21 +889,6 @@ describe("put-get", function () {
         expect(one.refFrom(1).paths["2"][0]).to.equal("items.0");
     });
 
-    it("builds prop chain for nested objects", () => {
-        let item1 = { uid: 1 };
-        let item2 = {
-            uid: 2,
-            level0: {
-                level1: {
-                    level2: item1
-                }
-            }
-        }
-        one.put(item2);
-        expect(one.refTo(2).size()).to.equal(1)
-        expect(one.refTo(2).paths["1"][0]).to.equal('level0.level1.level2')
-    })
-
     it("builds the prop chain for inner nested array items", function () {
         let item1 = { uid: 1 };
         let item3 = { uid: 3, item: item1 };
@@ -936,7 +938,7 @@ describe("put-get", function () {
         expect(result === item1).to.be.false;
     });
 
-    it("replace existing entities when putting dirty new version inside array", function () {
+    it("should replace existing entities when putting dirty new version inside array", function () {
         let item1 = { uid: 1 };
         let item2 = { uid: 2, item: item1 };
         one.put(item2);
@@ -1034,98 +1036,66 @@ describe("put-get", function () {
         expect(one.refTo('main').paths[5][1]).to.equal('second.2');
     })
 
-    //     /* Not sure this should be the lib's responsiblity - it involves scanning ALL arrays
-    //     in ALL entities in the cache */
-    //     //it("evicts the uid property if existing inside an array", function(){
-    //     //    let item1 = {uid:1234};
-    //     //    let item2 = {uid:2, uids:[1234]};
-    //     //    One.getCache().put([item1, item2]);
-    //     //    let result = One.getCache().get(1234);
-    //     //    expect(result).to.not.be.undefined;
-    //     //    One.getCache().evict(1234);
-    //     //    result = One.getCache().get(1234);
-    //     //    expect(result).to.be.undefined;
-    //     //
-    //     //    One.getCache().print();
-    //     //    result = One.getCache().get(2);
-    //     //    expect(result.uids.length).to.equal(0);
-    //     //});
+    it('should put parallel objects ', () => {
 
-    // describe("cycles", function () {
-    //     // TODO
-    //     it("clears cyclical items", function () {
-    //         // expect(1 === 0, "TODO adapt for cyclical items").to.be.true;
-    //         // One.put("{uid:1}");
-    //         // let item2 = {uid: 2};
-    //         // let item3 = {
-    //         //     uid: 3, item: item2
-    //         // }
-    //         // item2.item = item3;
-    //         // One.put(item3);
-    //         // One.evict(3);
-    //     });
-    // });
+        const main = {
+            uid: 2,
+            item1: {
+                item2: {
+                    item3: {
+                        uid: 3,
+                    },
+                    item4: {
+                        uid: 4,
+                    }
+                }
+            },
+        }
+        one.put(main);
+        expect(one.get(3)).to.not.be.undefined;
+        expect(one.get(4)).to.not.be.undefined;
+    })
 
-    //     it("removes all subsequent states when undo-ing and modifying a state", function () {
-    //         "use strict";
-    //         let item1 = { uid: 1 };
-    //         one.put(item1);
-    //         let item2 = { uid: 2 };
-    //         one.put(item2);
-    //         let state = one.undo();
-    //         expect(state.hasNext).to.be.true;
-    //         state = one.put({ uid: 1, text: "text" });
-    //         expect(state.hasNext).to.be.false;
-    //         let result = one.get(1);
-    //         expect(result.text).to.equal("text");
-    //     });
+    it('should not get blocked by no uid object', () => {
+        const subItem = { uid: 1 }
+        const main = {
+            uid: 2,
+            item1: {
+                item2: {
+                    item3: {
+                        uid: 3,
+                    },
+                    item4: {
+                        uid: 4,
+                        item7: {
+                            uid: 7
+                        }
+                    },
+                    item5: {
+                        item6: {
+                            test: true,
+                            subItem: subItem
+                        }
+                    }
+                }
+            },
+            // items2: [subItem]
+        }
+        one.put(main);
+        expect(one.get(1)).to.not.be.undefined;
+    })
 
-    //     it("removes subsequent states when evicting", function () {
-    //         let item1 = { uid: 1 };
-    //         one.put(item1);
-    //         let item2 = { uid: 2 };
-    //         one.put(item2);
-    //         let item3 = { uid: 3 };
-    //         one.put(item3);
-
-    //         one.undo();
-    //         one.evict(1);
-    //         // removes subsequent (has item3) and puts a new one without the item.
-    //         expect(one.length()).to.equal(3);
-    //         expect(one.size()).to.equal(1);
-    //         expect(one.get(2)).to.not.be.undefined;
-    //         expect(one.get(1)).to.be.undefined;
-    //         expect(one.get(3)).to.be.undefined;
-    //     })
-
-    // it("detects shallow dirty entity", function () {
-    //     let item1 = { uid: 1 };
-    //     let item2 = { uid: 2 };
-    //     one.put(item1);
-    //     expect(one.isDirty(item1)).to.be.false;
-    //     expect(one.isDirty(item2)).to.be.true;
-    //     expect(one.isDirty(one.get(1))).to.be.false;
-    //     expect(one.isDirty(one.getEdit(1))).to.be.true;
-    // });
-
-    // // this goes one back, removes all the items after the current state
-    // // and adds a new state with the appropriate changes
-    // it("puts and updates entity correctly after undo", function () {
-    //     let item1 = { uid: 1 };
-    //     one.put(item1);
-    //     let item2 = { uid: 2, item: item1 };
-    //     one.put(item2);
-
-    //     let state = one.undo();
-    //     expect(state.success).to.be.true;
-    //     expect(state.hasPrev).to.be.false;
-    //     expect(state.hasNext).to.be.true;
-
-    //     item1 = one.getEdit(1);
-    //     item1.text = "text";
-    //     state = one.put(item1);
-    //     expect(one.get(1).text).to.equal("text");
-    // });
+    it('should not get blocked by empty array', () => {
+        const subItem = { uid: 1 }
+        const main = {
+            uid: 2,
+            items1: [],
+            //  items3: [],
+            items2: [subItem]
+        }
+        one.put(main);
+        expect(one.get(1)).to.not.be.undefined;
+    })
 });
 
 

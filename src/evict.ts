@@ -1,14 +1,16 @@
 import { ICacheInstance } from './CacheInstance';
 import { cacheSize, hasUid, isArray, isObject } from './util';
 import { config } from './cache';
-import { getCacheCurrentStack, getCachedItem, getEditItem } from './get';
+import { getEditItem } from './get';
 import CacheMap from './CacheMap';
 import CacheItem from './CacheItem';
 import * as opath from './path';
-import { getItemFlushOrCached, buildFlushMap, flush } from './flush';
 import { IFlushArgs, ICacheStats } from './interfaces';
 import { getCallStats } from './locate';
 import { updatePointers, updateRefFroms } from './ref';
+import { getCacheCurrentStack, getItemFlushOrCached, getCachedItem } from './cacheUtil';
+import { flush } from './flush';
+import { parse } from './parse';
 declare let require: any;
 
 /**
@@ -56,16 +58,16 @@ export const evictItem = (obj, instance: ICacheInstance) => {
     let parentsChanged = [];
 
     uidArray.forEach(uid => {
-        flushArgs.entityUid = uid;
+        //flushArgs.entityUid = uid;
 
         // remove REF_FROM in item references metadata
-        clearTargetRefFroms(flushArgs);
+        clearTargetRefFroms(uid, flushArgs);
 
         // value doesn't matter here - will be evicted
         evictMap.set(uid, null);
 
         // remove REF_TO in parent metadata
-        clearParentRefTos(uidArray, parentsChanged, flushArgs);
+        clearParentRefTos(uid, uidArray, parentsChanged, flushArgs);
     });
 
     putParentsChanged(parentsChanged, flushMap, evictMap, instance);
@@ -92,7 +94,7 @@ const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheI
             evictMap: evictMap,
             instance: instance
         }
-        buildFlushMap(flushArgs);
+        parse(parentsChanged, flushArgs);
         // refTos have been updated already only handle refFroms
         flushArgs.flushMap.forEach((key, item: CacheItem) => {
             // do not modify flush map on its own iteration 
@@ -109,16 +111,16 @@ const putParentsChanged = (parentsChanged: Array<any>, flushMap: CacheMap<CacheI
    * @param flushMap
    * @param evictMap
    */
-const clearTargetRefFroms = (flushArgs: IFlushArgs) => {
-    let item: CacheItem = getCachedItem(flushArgs.entityUid, flushArgs.instance);
+const clearTargetRefFroms = (entityUid: string, flushArgs: IFlushArgs) => {
+    let item: CacheItem = getCachedItem(entityUid, flushArgs.instance);
     if (item) {
         item.mapTo.forEach((toUid, paths) => {
             let refItem: CacheItem = getItemFlushOrCached(toUid, flushArgs);
             if (refItem) {
-                clearRefFrom(refItem, flushArgs.entityUid);
+                clearRefFrom(refItem, entityUid);
                 if (refItem.mapFrom.size() === 0) {
-                    flushArgs.entityUid = toUid;
-                    clearTargetRefFroms(flushArgs);
+                    entityUid = toUid;
+                    clearTargetRefFroms(entityUid, flushArgs);
                     flushArgs.evictMap.set(toUid, refItem);
                 } else {
                     flushArgs.flushMap.set(toUid, refItem);
@@ -143,32 +145,20 @@ const clearRefFrom = (refItem: CacheItem, parentUid) => {
     refItem.mapFrom.delete(parentUid);
 };
 
-// /**
-//  * Clones an item's reference object for pure functionality
-//  *
-//  * @param item
-//  * @param refName
-//  */
-// const cloneRef = (item: CacheItem, refName) => {
-//     let length = item[refName].length;
-//     item[refName] = objectAssign(getNewLengthObj(), item[refName]);
-//     item[refName].length = length;
-// };
-
 /**
  * On evict remove all pointers and references to this entity.
  *
  * @param entityUid
  * @param flushMap
  */
-const clearParentRefTos = (uidArray, parentsChanged, flushArgs: IFlushArgs) => {
-    let item: CacheItem = getItemFlushOrCached(flushArgs.entityUid, flushArgs);
+const clearParentRefTos = (entityUid, uidArray, parentsChanged, flushArgs: IFlushArgs) => {
+    let item: CacheItem = getItemFlushOrCached(entityUid, flushArgs);
 
     if (item) {
         item.mapFrom.forEach((parentUid, paths) => {
             let parentItem = getItemFlushOrCached(parentUid, flushArgs);
             if (parentItem) {
-                let success = clearRefTo(parentItem, flushArgs.entityUid, flushArgs.instance);
+                let success = clearRefTo(parentItem, entityUid, flushArgs.instance);
                 if (success === true) {
                     flushArgs.flushMap.set(parentUid, parentItem);
                     if (uidArray.indexOf(parentUid) < 0) {

@@ -46,9 +46,8 @@ export default class CacheMap<T> {
     }
 
     clone = (): CacheMap<T> => {
-        let newInstance = objectAssign({}, this.paths);
         let clone: CacheMap<T> = new CacheMap<T>();
-        clone.paths = newInstance;
+        clone.paths = { ...this.paths };
         clone.length = this.length;
         return clone;
     }

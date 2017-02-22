@@ -6,6 +6,7 @@ import { isArray, isObject, hasUid, deepClone } from './util';
 import CacheItem from './CacheItem';
 import CacheMap from './CacheMap';
 import { IFlushArgs } from './interfaces';
+import { getCachedItem } from './cacheUtil';
 
 /**
  * Gets a frozen item out of the cache if existing. This item is for display purposes only (not editable) and is
@@ -91,55 +92,9 @@ const getActualUid = uidOrEntity => {
     }
 };
 
-/**
-  * Checks whether an exact entity is already cached.
-  *
-  * @param flushArgs
-  * @returns {boolean} true if the item already exists on cache.
-  */
-export const isOnCache = (flushArgs: IFlushArgs): boolean => {
-    // this is only called for uid items so ok not to check for uid
-    let uid = flushArgs.entity[config.uidName];
-    let existingItem: CacheItem = getCachedItem(uid, flushArgs.instance);
-    return existingItem && existingItem.entity === flushArgs.entity;
-};
 
-/**
- * Pulls an item out of the current version of the cache.
- * Gets the actual real instance but frozen (uneditable).
- * Useful for testing.
- * @param uid
- * @returns {*}
- */
-export const getCachedItem = (uid: string, instance: ICacheInstance): CacheItem => {
-    let currentNode: ICacheNode = getCurrentNode(instance);
-    return currentNode ? currentNode.items.get(String(uid)) : undefined;
-};
 
-/**
- * The node currently being displayed by the cache.
- *
- * @param threadId
- * @returns {undefined} the cache node that the thread is currently left pointing at.
- */
-function getCurrentNode(instance: ICacheInstance): ICacheNode {
-    let currentNodeId: number = instance.thread.nodes[instance.thread.current];
-    // watch out currentNodeId evaluates to false when it's 0
-    return currentNodeId >= 0 ? getRepoNode(currentNodeId, instance.repo) : undefined;
-}
 
-/**
- * Specific node on the repo.
- */
-function getRepoNode(nodeId: number, repo: ICacheRepo): ICacheNode {
-    return repo.get(nodeId);
-}
 
-/**
-  *
-  * @returns {Map}
-  */
-export const getCacheCurrentStack = (instance: ICacheInstance): CacheMap<CacheItem> => {
-    let currentNode = getCurrentNode(instance);
-    return currentNode ? currentNode.items : undefined;
-};
+
+
