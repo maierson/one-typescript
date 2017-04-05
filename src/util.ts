@@ -1,9 +1,8 @@
-import { ICacheInstance } from './CacheInstance';
-import { config, instances } from './cache';
 import { CacheNode, ICacheNode } from './CacheNode';
+import { config, instances } from './cache';
+
+import { ICacheInstance } from './CacheInstance';
 import { getCurrentNode } from './locate';
-declare let require: any;
-const objectAssign = require('object-assign');
 
 const toString: any = Object.prototype.toString;
 var _hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -178,7 +177,7 @@ export function deepClone(obj, uidReference?, freeze = true) {
     }
 
     // shallow copy first
-    let result = objectAssign({}, obj);
+    let result = { ...obj };
     for (let propName in obj) {
         let value = obj[propName];
         if (value) {
