@@ -1,76 +1,73 @@
-import { config, instances, setTesting } from '../src/cache';
-import { expect } from 'chai'
-import * as sinon from 'sinon'
-import { configure } from '../src/config';
-import { isArray, deepClone, cacheSize } from '../src/util';
-import * as path from "../src/path";
-import * as mocha from 'mocha';
-import * as One from '../src/cache';
-import CacheMap from '../src/CacheMap';
+import 'jest'
 
-describe("setup", function () {
+import * as One from '../src/cache'
+import * as path from '../src/path'
 
-    let one;
-    setTesting(false);
+import { cacheSize, deepClone, isArray } from '../src/util'
 
-    beforeEach(function () {
-        setTesting(false);
-        // reset config before each call
-        one = One.getCache();
-    });
+import CacheMap from '../src/CacheMap'
 
-    afterEach(function () {
-        one.reset();
-    });
+describe('setup', function () {
+  let one
+  One.setTesting(false)
 
-    it("returns singleton instance", function () {
-        expect(One.getCache() === One.getCache()).to.be.true;
-    });
+  beforeEach(function () {
+    One.setTesting(false)
+    // reset config before each call
+    one = One.getCache()
+  })
 
-    it('configures with default', () => {
-        expect(config).to.not.be.undefined;
-        expect(config.uidName).to.not.be.undefined;
-        expect(config.maxHistoryStates).to.equal(1000);
-    })
+  afterEach(function () {
+    one.reset()
+  })
 
-    it("finds one lib", function () {
-        expect(one).to.not.be.undefined;
-    });
+  it('returns singleton instance', function () {
+    const cche = One.getCache()
+    expect(One.getCache() === cche).toBe(true)
+  })
 
-    it("initializes with no map", function () {
-        expect(one).to.not.be.null;
-        expect(one.size()).to.equal(0);
-        expect(one.length()).to.equal(0);
-    });
+  it('configures with default', () => {
+    expect(One.config).toBeDefined()
+    expect(One.config.uidName).toBeDefined()
+    expect(One.config.maxHistoryStates).toBe(1000)
+  })
 
-    it('initializes second instance', () => {
-        let two = One.getCache('two');
-        expect(two).to.not.be.undefined;
-        expect(instances['two']).to.equal(two);
-        expect(instances['one']).to.not.be.undefined;
-        expect(one.size()).to.equal(0);
-        expect(one.length()).to.equal(0);
-    })
+  it('finds one lib', function () {
+    expect(one).toBeDefined()
+  })
 
-    it('initializes instance', () => {
-        // public api
-        expect(typeof one.put === 'function').to.be.true;
-        expect(typeof one.get === 'function').to.be.true;
-        expect(typeof one.getEdit === 'function').to.be.true;
-        expect(typeof one.evict === 'function').to.be.true;
-        expect(typeof one.reset === 'function').to.be.true;
-        expect(typeof one.print === 'function').to.be.true;
+  it('initializes with no map', function () {
+    expect(one).not.toBe(null)
+    expect(one.size()).toBe(0)
+    expect(one.length()).toBe(0)
+  })
 
-        // these guys are private in closure            
-        expect(one.repo).to.be.undefined;
-        expect(one.mainThread).to.be.undefined;
-        expect(one.nextNodeKey).to.be.undefined;
-    })
+  it('initializes second instance', () => {
+    let two = One.getCache('two')
+    expect(two).toBeDefined()
+    expect(One.instances['two']).toBe(two)
+    expect(One.instances['one']).toBeDefined()
+    expect(one.size()).toBe(0)
+    expect(one.length()).toBe(0)
+  })
 
-    it('does not provide test methods', () => {
-        expect(typeof one.refTo === 'function').to.be.false;
-        expect(typeof one.refFrom === 'function').to.be.false;
-    })
-});
+  it('initializes instance', () => {
+    // public api
+    expect(typeof one.put === 'function').toBe(true)
+    expect(typeof one.get === 'function').toBe(true)
+    expect(typeof one.getEdit === 'function').toBe(true)
+    expect(typeof one.evict === 'function').toBe(true)
+    expect(typeof one.reset === 'function').toBe(true)
+    expect(typeof one.print === 'function').toBe(true)
 
+    // these guys are private in closure
+    expect(one.repo).toBeUndefined()
+    expect(one.mainThread).toBeUndefined()
+    expect(one.nextNodeKey).toBeUndefined()
+  })
 
+  it('does not provide test methods', () => {
+    expect(typeof one.refTo === 'function').toBe(false)
+    expect(typeof one.refFrom === 'function').toBe(false)
+  })
+})

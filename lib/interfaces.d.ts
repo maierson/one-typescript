@@ -1,5 +1,5 @@
-import CacheMap from './CacheMap';
 import CacheItem from './CacheItem';
+import CacheMap from './CacheMap';
 import { ICacheInstance } from './CacheInstance';
 export interface IFlushArgs {
     flushMap: CacheMap<CacheItem>;

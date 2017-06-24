@@ -1,35 +1,26 @@
 module.exports = function (wallaby) {
-    return {
-        files: [
-            'src/**/*.ts'
-        ],
+  return {
+    files: [
+      'package.json',
+      'tsconfig.json',
+      'src/**/*.ts'
+    ],
 
-        tests: ['test/**/*test.ts?(x)'],
+    tests: ['test/**/*test.ts?(x)'],
 
-        compilers: {
-            '**/*.ts': wallaby.compilers.typeScript({
-                module: 'commonjs',// jscs:ignore
-            })
-        },
+    compilers: {
+      '**/*.ts': wallaby.compilers.typeScript({
+        module: 'commonjs',// jscs:ignore
+      })
+    },
 
-        testFramework: 'mocha',
+    testFramework: 'jest',
 
-        env: {
-            type: 'node'
-        },
+    env: {
+      type: 'node',
+      runner: 'node',
+    },
 
-        workers: {
-            initial: 1,
-            regular: 1
-        },
-
-        debug: true,
-
-        setup: function () {
-            var jsdom = require('jsdom');
-            global.document = jsdom.jsdom('<!doctype html><html><body></body></html>');
-            global.window = document.defaultView;
-            global.navigator = global.window.navigator;
-        }
-    };
+    debug: true,
+  };
 };

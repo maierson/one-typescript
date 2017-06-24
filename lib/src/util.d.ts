@@ -2,7 +2,7 @@ import { ICacheNode } from './CacheNode';
 import { ICacheInstance } from './CacheInstance';
 export declare function isNumber(value: any): boolean;
 export declare function isString(obj: any): boolean;
-export declare function isObject(mixed_var: any): boolean;
+export declare function isObject(mixedVar: any): boolean;
 export declare function isFunction(item: any): boolean;
 export declare function isArray(value: any): boolean;
 export declare function isDate(value: any): boolean;

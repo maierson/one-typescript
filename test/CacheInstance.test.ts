@@ -1,49 +1,48 @@
-import { CacheNode, ICacheNode } from '../src/CacheNode';
-import { ICacheInstance } from '../src/CacheInstance';
-import CacheInstance from '../src/CacheInstance';
-import CacheMap from '../src/CacheMap';
-import CacheRepo from '../src/CacheRepo';
-import CacheThread from '../src/CacheThread';
-import { expect } from 'chai';
+import 'jest'
 
-describe("CacheInstance", () => {
-    let instance: ICacheInstance;
+import { CacheNode, ICacheNode } from "../src/CacheNode";
 
-    beforeEach(() => {
-        instance = new CacheInstance("one");
-    })
+import CacheInstance from '../src/CacheInstance'
+import CacheRepo from '../src/CacheRepo'
+import CacheThread from '../src/CacheThread'
+import { ICacheInstance } from "../src/CacheInstance";
 
-    afterEach(() => {
-        instance = null;
-    })
+describe('CacheInstance', () => {
+  let instance: ICacheInstance
 
-    it('creates cache instance', () => {
-        expect(instance.repo).to.not.be.undefined;
-        expect(instance.repo instanceof CacheRepo).to.be.true;
-        expect(instance.thread).to.not.be.undefined;
-        expect(instance.thread instanceof CacheThread).to.be.true;
-        expect(instance.name).to.equal('one');
-        expect(instance.nextNodeKey).to.equal(0);
-    })
+  beforeEach(() => {
+    instance = new CacheInstance('one')
+  })
 
-    it('adds node only once', () => {
-        expect(instance.length()).to.equal(0);
-        let node: ICacheNode = new CacheNode(0);
-        expect(instance.addNode(node)).to.be.true;
-        expect(instance.length()).to.equal(1);
-        expect(instance.addNode(node)).to.be.false;
-        expect(instance.length()).to.equal(1);
-        expect(instance.size()).to.equal(1);
-    })
+  afterEach(() => {
+    instance = null
+  })
 
-    it('adds multiple nodes', () => {
-        for (let i = 0; i < 3; i++) {
-            let node: ICacheNode = new CacheNode(i);
-            instance.addNode(node);
-        }
-        expect(instance.length()).to.equal(3);
-        expect(instance.size()).to.equal(3);
-    })
+  it('creates cache instance', () => {
+    expect(instance.repo).toBeDefined()
+    expect(instance.repo instanceof CacheRepo).toBe(true)
+    expect(instance.thread).toBeDefined()
+    expect(instance.thread instanceof CacheThread).toBe(true)
+    expect(instance.name).toBe('one')
+    expect(instance.nextNodeKey).toBe(0)
+  })
+
+  it('adds node only once', () => {
+    expect(instance.length()).toBe(0)
+    let node: ICacheNode = new CacheNode(0)
+    expect(instance.addNode(node)).toBe(true)
+    expect(instance.length()).toBe(1)
+    expect(instance.addNode(node)).toBe(false)
+    expect(instance.length()).toBe(1)
+    expect(instance.size()).toBe(1)
+  })
+
+  it('adds multiple nodes', () => {
+    for (let i = 0; i < 3; i++) {
+      let node: ICacheNode = new CacheNode(i)
+      instance.addNode(node)
+    }
+    expect(instance.length()).toBe(3)
+    expect(instance.size()).toBe(3)
+  })
 })
-
-

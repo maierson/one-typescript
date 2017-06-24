@@ -1,24 +1,10 @@
-import CacheItem from './CacheItem';
-import { ICacheInstance } from './CacheInstance';
-import { config } from './cache';
-import { ICacheNode } from './CacheNode';
-import { ICacheRepo } from './CacheRepo';
-import CacheMap from './CacheMap';
-import { IFlushArgs } from './interfaces';
-
-/* the same exact instance exists on the cache's current node */
-export const isOnCache = (entity, instance: ICacheInstance): boolean => {
-    let cachedItem: CacheItem = getCachedItem(entity[config.uidName], instance);
-    return cachedItem && cachedItem.entity === entity;
-}
-
-/**
- * Checks whether a specific entity is already added to the
- * flush map when executing an atomic op.
- */
-export const isOnFlushMap = (entity, flushMap): boolean => {
-    return !!flushMap.get(entity[config.uid]);
-}
+import CacheItem from './CacheItem'
+import CacheMap from './CacheMap'
+import { ICacheInstance } from './CacheInstance'
+import { ICacheNode } from './CacheNode'
+import { ICacheRepo } from './CacheRepo'
+import { IFlushArgs } from './interfaces'
+import { config } from './cache'
 
 /**
  * Pulls an item out of the current version of the cache.
@@ -29,26 +15,40 @@ export const isOnFlushMap = (entity, flushMap): boolean => {
  * @returns {*}
  */
 export const getCachedItem = (uid: string, instance: ICacheInstance): CacheItem => {
-    let currentNode: ICacheNode = getCurrentNode(instance);
-    return currentNode ? currentNode.items.get(String(uid)) : undefined;
-};
+  let currentNode: ICacheNode = getCurrentNode(instance)
+  return currentNode ? currentNode.items.get(String(uid)) : undefined
+}
+
+/* the same exact instance exists on the cache's current node */
+export const isOnCache = (entity, instance: ICacheInstance): boolean => {
+  let cachedItem: CacheItem = getCachedItem(entity[config.uidName], instance)
+  return cachedItem && cachedItem.entity === entity
+}
+
+/**
+ * Checks whether a specific entity is already added to the
+ * flush map when executing an atomic op.
+ */
+export const isOnFlushMap = (entity, flushMap): boolean => {
+  return !!flushMap.get(entity[config.uid])
+}
 
 /**
  * Finds an item anywhere it exists either on the cache or on the flushMap
  */
 export const getItemFlushOrCached = (uid: string, flushArgs: IFlushArgs) => {
-    if (uid) {
-        uid = String(uid);
-        let item = flushArgs.flushMap.get(uid);
-        if (!item) {
-            item = getCachedItem(uid, flushArgs.instance);
-        }
-        if (item && Object.isFrozen(item)) {
-            item = item.clone();
-        }
-        return item;
+  if (uid) {
+    const uuid = String(uid)
+    let item = flushArgs.flushMap.get(uuid)
+    if (!item) {
+      item = getCachedItem(uuid, flushArgs.instance)
     }
-};
+    if (item && Object.isFrozen(item)) {
+      item = item.clone()
+    }
+    return item
+  }
+}
 
 /**
  * The node currently being displayed by the cache.
@@ -57,16 +57,16 @@ export const getItemFlushOrCached = (uid: string, flushArgs: IFlushArgs) => {
  * @returns {undefined} the cache node that the thread is currently left pointing at.
  */
 function getCurrentNode(instance: ICacheInstance): ICacheNode {
-    let currentNodeId: number = instance.thread.nodes[instance.thread.current];
-    // watch out currentNodeId evaluates to false when it's 0
-    return currentNodeId >= 0 ? getRepoNode(currentNodeId, instance.repo) : undefined;
+  let currentNodeId: number = instance.thread.nodes[instance.thread.current]
+  // watch out currentNodeId evaluates to false when it's 0
+  return currentNodeId >= 0 ? getRepoNode(currentNodeId, instance.repo) : undefined
 }
 
 /**
  * Specific node on the repo.
  */
 function getRepoNode(nodeId: number, repo: ICacheRepo): ICacheNode {
-    return repo.get(nodeId);
+  return repo.get(nodeId)
 }
 
 /**
@@ -74,20 +74,8 @@ function getRepoNode(nodeId: number, repo: ICacheRepo): ICacheNode {
  * @returns {CacheMap}
  */
 export const getCacheCurrentStack = (instance: ICacheInstance): CacheMap<CacheItem> => {
-    let currentNode = getCurrentNode(instance);
-    return currentNode ? currentNode.items : undefined;
-};
-
-/**
- * Creates a CacheItem for an entity the first time it is accessed
- * and puts it on the flushMap.
- */
-export const ensureOnFlushMap = (entity, flushArgs: IFlushArgs) => {
-    let entityUid = String(entity[config.uidName]);
-
-    if (!flushArgs.flushMap.has(entityUid)) {
-        ensureItem(entity, flushArgs);
-    }
+  let currentNode = getCurrentNode(instance)
+  return currentNode ? currentNode.items : undefined
 }
 
 /**
@@ -98,17 +86,29 @@ export const ensureOnFlushMap = (entity, flushArgs: IFlushArgs) => {
  * @returns {CacheItem} an editable item corresponding to the entity on the flush map.
  */
 export const ensureItem = (entity, flushArgs: IFlushArgs): CacheItem => {
-    let itemUid = String(entity[config.uidName]);
-    let item: CacheItem = flushArgs.flushMap.get(itemUid);
-    if (item) {
-        return item;
-    }
+  let itemUid = String(entity[config.uidName])
+  let item: CacheItem = flushArgs.flushMap.get(itemUid)
+  if (item) {
+    return item
+  }
 
-    // else make a copy of the live item
-    let live: CacheItem = getCachedItem(itemUid, flushArgs.instance);
-    item = new CacheItem(entity, live);
+  // else make a copy of the live item
+  let live: CacheItem = getCachedItem(itemUid, flushArgs.instance)
+  item = new CacheItem(entity, live)
 
-    flushArgs.flushMap.set(itemUid, item);
-    flushArgs.flushMap['__UPDATED__'] = true;
-    return item;
-};
+  flushArgs.flushMap.set(itemUid, item)
+  flushArgs.flushMap['__UPDATED__'] = true
+  return item
+}
+
+/**
+ * Creates a CacheItem for an entity the first time it is accessed
+ * and puts it on the flushMap.
+ */
+export const ensureOnFlushMap = (entity, flushArgs: IFlushArgs) => {
+  let entityUid = String(entity[config.uidName])
+
+  if (!flushArgs.flushMap.has(entityUid)) {
+    ensureItem(entity, flushArgs)
+  }
+}

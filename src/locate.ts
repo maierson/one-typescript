@@ -1,8 +1,9 @@
-import { ICacheInstance } from './CacheInstance';
-import { instances } from './cache';
-import { isNumber, cacheLength } from './util';
-import { ICacheStats } from './interfaces';
+import { cacheLength, isNumber } from './util'
+
+import { ICacheInstance } from './CacheInstance'
 import { ICacheNode } from './CacheNode'
+import { ICacheStats } from './interfaces'
+import { instances } from './cache'
 
 /**
   * Gets the state of the cache.
@@ -13,13 +14,13 @@ import { ICacheNode } from './CacheNode'
   * @returns {{}}
   */
 export const getCallStats = (success: boolean, instance: ICacheInstance): ICacheStats => {
-    let result: any = {};
-    result.success = success;
-    result.nodeId = node(instance);
-    result.length = length(instance);
-    result.name = instance.name;
-    return result;
-};
+  let result: any = {}
+  result.success = success
+  result.nodeId = node(instance)
+  result.length = length(instance)
+  result.name = instance.name
+  return result
+}
 
 /**
  * Gets or sets the current position of the cache by node id.
@@ -33,23 +34,23 @@ export const getCallStats = (success: boolean, instance: ICacheInstance): ICache
  *     for node(id) the current history state
  */
 export const node = (instance: ICacheInstance, nodeId?): number | ICacheStats => {
-    // guard for 0 values
-    if (typeof nodeId === "undefined") {
-        let currentNode = getCurrentNode(instance);
-        return currentNode ? currentNode.id : -1;
-    }
+  // guard for 0 values
+  if (typeof nodeId === 'undefined') {
+    let currentNode = getCurrentNode(instance)
+    return currentNode ? currentNode.id : -1
+  }
 
-    if (!isNumber(nodeId)) {
-        throw new TypeError("The node id must be a number.");
-    }
+  if (!isNumber(nodeId)) {
+    throw new TypeError('The node id must be a number.')
+  }
 
-    let cacheNode = getRepoNode(nodeId, instance);
-    if (!cacheNode) {
-        return getCallStats(false, instance);
-    }
-    instance.thread.current = binaryIndexOf(instance.thread.nodes, nodeId);
-    return getCallStats(true, instance);
-};
+  let cacheNode = getRepoNode(nodeId, instance)
+  if (!cacheNode) {
+    return getCallStats(false, instance)
+  }
+  instance.thread.current = binaryIndexOf(instance.thread.nodes, nodeId)
+  return getCallStats(true, instance)
+}
 
 /**
   * The node currently being displayed by the cache.
@@ -58,30 +59,28 @@ export const node = (instance: ICacheInstance, nodeId?): number | ICacheStats =>
   * @returns {undefined} the cache node that the thread is currently left pointing at.
   */
 export function getCurrentNode(instance: ICacheInstance) {
-    let currentNodeId = instance.thread.nodes[instance.thread.current];
-    // watch out currentNodeId evaluates to false when it's 0
-    return currentNodeId >= 0 ? getRepoNode(currentNodeId, instance) : undefined;
+  let currentNodeId = instance.thread.nodes[instance.thread.current]
+  // watch out currentNodeId evaluates to false when it's 0
+  return currentNodeId >= 0 ? getRepoNode(currentNodeId, instance) : undefined
 }
 
 /**
  *
  *
  * @export
- * @param {any} cacheNodeId 
- * @param {ICacheInstance} instance 
- * @returns 
+ * @param {any} cacheNodeId
+ * @param {ICacheInstance} instance
+ * @returns
  */
 export function getRepoNode(cacheNodeId, instance: ICacheInstance) {
-    return instance.repo.get(cacheNodeId);
+  return instance.repo.get(cacheNodeId)
 }
 
 /**
  * Number of current cache versions stored in the history nodes.
  * @returns {Number}
  */
-const length = (instance: ICacheInstance) => {
-    return instance.thread.nodes.length;
-};
+const length = (instance: ICacheInstance) => instance.thread.nodes.length
 
 /**
  * Performs a binary search on the array argument O(log(n)).
@@ -94,26 +93,21 @@ const length = (instance: ICacheInstance) => {
  * http://oli.me.uk/2013/06/08/searching-javascript-arrays-with-a-binary-search/
  */
 function binaryIndexOf(array: Array<any>, searchElement) {
-    var minIndex = 0;
-    var maxIndex = array.length - 1;
-    var currentIndex;
-    var currentElement;
+  var minIndex = 0
+  var maxIndex = array.length - 1
+  var currentIndex
+  var currentElement
 
-    while (minIndex <= maxIndex) {
-        currentIndex = (minIndex + maxIndex) / 2 | 0;
-        currentElement = array[currentIndex];
+  while (minIndex <= maxIndex) {
+    currentIndex = (minIndex + maxIndex) / 2 | 0
+    currentElement = array[currentIndex]
 
-        if (currentElement < searchElement) {
-            minIndex = currentIndex + 1;
-        }
-        else if (currentElement > searchElement) {
-            maxIndex = currentIndex - 1;
-        }
-        else {
-            return currentIndex;
-        }
+    if (currentElement < searchElement) {
+      minIndex = currentIndex + 1
+    } else if (currentElement > searchElement) {
+      maxIndex = currentIndex - 1
+    } else {
+      return currentIndex
     }
-    /* istanbul ignore next - it never gets here really*/
-    //  return -1;
+  }
 }
-

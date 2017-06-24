@@ -1,57 +1,56 @@
-import { CacheNode, ICacheNode } from '../src/CacheNode';
-import { ICacheInstance } from '../src/CacheInstance';
-import CacheInstance from '../src/CacheInstance';
-import CacheMap from '../src/CacheMap';
-import CacheRepo from '../src/CacheRepo';
-import CacheThread from '../src/CacheThread';
-import { expect } from 'chai';
+import 'jest'
 
-describe("CacheRepo", () => {
-    let repo: CacheRepo;
+import CacheInstance, { ICacheInstance } from '../src/CacheInstance'
+import { CacheNode, ICacheNode } from '../src/CacheNode'
 
-    beforeEach(() => {
-        repo = new CacheRepo();
-    })
+import CacheMap from '../src/CacheMap'
+import CacheRepo from '../src/CacheRepo'
+import CacheThread from '../src/CacheThread'
 
-    afterEach(() => {
-        repo = null;
-    })
+describe('CacheRepo', () => {
+  let repo: CacheRepo
 
-    it('creates cache instance', () => {
-        expect(repo.items instanceof CacheMap).to.be.true;
-        expect(repo.length).to.equal(0);
-        expect(typeof repo.get === 'function').to.be.true;
-        expect(typeof repo.add === 'function').to.be.true;
-        expect(typeof repo.delete === 'function').to.be.true;
-    })
+  beforeEach(() => {
+    repo = new CacheRepo()
+  })
 
-    it('adds node to the repo', () => {
-        let node: ICacheNode = new CacheNode(0);
-        repo.add(node);
-        let node1: ICacheNode = new CacheNode(1);
-        let node2: ICacheNode = new CacheNode(2);
-        repo.add(node);
-        repo.add(node1);
-        repo.add(node2);
-        expect(repo.length).to.equal(3);
-        expect(repo.get(2)).to.equal(node2);
-        expect(repo.get(1)).to.equal(node1);
-        expect(repo.get(0)).to.equal(node);
-    })
+  afterEach(() => {
+    repo = null
+  })
 
-    it('adds deletes from the repo', () => {
-        let node: ICacheNode = new CacheNode(0);
-        let node1: ICacheNode = new CacheNode(1);
-        let node2: ICacheNode = new CacheNode(2);
-        repo.add(node);
-        repo.add(node1);
-        repo.add(node2);
-        repo.delete(1);
-        expect(repo.length).to.equal(2);
-        expect(repo.get(2)).to.equal(node2);
-        expect(repo.get(0)).to.equal(node);
-        expect(repo.get(1)).to.be.undefined;
-    })
+  it('creates cache instance', () => {
+    expect(repo.items instanceof CacheMap).toBe(true)
+    expect(repo.length).toBe(0)
+    expect(typeof repo.get === 'function').toBe(true)
+    expect(typeof repo.add === 'function').toBe(true)
+    expect(typeof repo.delete === 'function').toBe(true)
+  })
+
+  it('adds node to the repo', () => {
+    let node: ICacheNode = new CacheNode(0)
+    repo.add(node)
+    let node1: ICacheNode = new CacheNode(1)
+    let node2: ICacheNode = new CacheNode(2)
+    repo.add(node)
+    repo.add(node1)
+    repo.add(node2)
+    expect(repo.length).toBe(3)
+    expect(repo.get(2)).toBe(node2)
+    expect(repo.get(1)).toBe(node1)
+    expect(repo.get(0)).toBe(node)
+  })
+
+  it('adds deletes from the repo', () => {
+    let node: ICacheNode = new CacheNode(0)
+    let node1: ICacheNode = new CacheNode(1)
+    let node2: ICacheNode = new CacheNode(2)
+    repo.add(node)
+    repo.add(node1)
+    repo.add(node2)
+    repo.delete(1)
+    expect(repo.length).toBe(2)
+    expect(repo.get(2)).toBe(node2)
+    expect(repo.get(0)).toBe(node)
+    expect(repo.get(1)).toBeUndefined()
+  })
 })
-
-
