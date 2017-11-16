@@ -22,7 +22,6 @@ export const putItem = (entity: {} | Array<{}>, instance: ICacheInstance): ICach
   // TODO ****** freeze arrays on put
   // only mergeThread entities with uid
   if ((isArray(entity) || isObject(entity))) {
-
     const evictMap: CacheMap<CacheItem> = new CacheMap<CacheItem>()
     const flushMap: CacheMap<CacheItem> = new CacheMap<CacheItem>()
     flushMap['__UPDATED__'] = false

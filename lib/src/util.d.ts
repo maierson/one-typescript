@@ -1,5 +1,5 @@
-import { ICacheNode } from './CacheNode';
-import { ICacheInstance } from './CacheInstance';
+import { ICacheInstance } from '../CacheInstance';
+import { ICacheNode } from '../CacheNode';
 export declare function isNumber(value: any): boolean;
 export declare function isString(obj: any): boolean;
 export declare function isObject(mixedVar: any): boolean;

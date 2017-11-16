@@ -97,6 +97,7 @@ export const updateRefFroms = (item: CacheItem, flushArgs: IFlushArgs) => {
 
           // the entity is still frozen here - clone it to update and freeze it deeply
           parentItem.entity = deepClone(parentItem.entity, item.entity, true)
+          updateRefFroms(parentItem, flushArgs)
         }
       }
     })

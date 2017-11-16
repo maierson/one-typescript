@@ -3,11 +3,8 @@ import 'jest'
 import * as One from '../src/cache'
 import * as path from '../src/path'
 
-import { deepClone, hasUid, isArray } from '../src/util'
-
-import CacheItem from '../src/CacheItem'
-import CacheMap from '../src/CacheMap'
-import { configure } from '../src/config'
+import { isArray } from '../src/util'
+import { print } from "../src/cache";
 
 describe('put-get', function () {
   let one
@@ -152,7 +149,7 @@ describe('put-get', function () {
 
   it('should not put the entity if not changed', function () {
     const item1 = { uid: 1 }
-    const state = one.put(item1)
+    let state = one.put(item1)
     expect(state.success).toBe(true)
     state = one.put(item1)
     expect(state.success).toBe(false)
@@ -1065,5 +1062,34 @@ describe('put-get', function () {
     }
     one.put(main)
     expect(one.get(1)).toBeDefined()
+  })
+
+  it('should update deeply nested array item', () => {
+    const book: any = { uid: 'book' }
+    const section: any = { uid: 'section' }
+    const cell: any = { uid: 'cell' }
+    const image: any = { uid: 'image' }
+    book.sections = [section]
+    section.cellList = [cell]
+    cell.image = image
+    one.put(book)
+    expect(one.get('book')).toBe(book)
+    expect(one.get('section')).toBe(section)
+    expect(one.get('cell')).toBe(cell)
+    expect(one.get('image')).toBe(image)
+    const updateImg = {
+      ...image,
+      title: 'test',
+    }
+    one.put(updateImg)
+    expect(one.get('image')).toBe(updateImg)
+    expect(one.get('cell').image).toBe(updateImg)
+    expect(one.get('cell').image.title).toBe('test')
+    const cachedSec = one.get('section')
+    const cachedCell = one.get('cell')
+    expect(cachedSec.cellList.length).toBe(1)
+    expect(cachedSec.cellList[0]).toBe(cachedCell)
+    expect(one.get('section').cellList[0].image.title).toBe('test')
+    expect(one.get('book').sections[0].cellList[0].image.title).toBe('test')
   })
 })

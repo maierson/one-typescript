@@ -3,15 +3,15 @@ module.exports = function (wallaby) {
     files: [
       'package.json',
       'tsconfig.json',
-      'src/**/*.ts'
+      'src/**/*.ts',
     ],
 
-    tests: ['test/**/*test.ts?(x)'],
+    tests: ['test/**/*.test.ts?(x)'],
 
     compilers: {
       '**/*.ts': wallaby.compilers.typeScript({
-        module: 'commonjs',// jscs:ignore
-      })
+        module: 'commonjs',
+      }),
     },
 
     testFramework: 'jest',
@@ -22,5 +22,5 @@ module.exports = function (wallaby) {
     },
 
     debug: true,
-  };
+  }
 };
